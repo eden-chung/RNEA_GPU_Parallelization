@@ -1,0 +1,11 @@
+Matmul times Julia:
+Matrix size: 100 x 100, Time taken: 0.0002028942108154297 seconds
+Matrix size: 300 x 300, Time taken: 0.0015261173248291016 seconds
+Matrix size: 500 x 500, Time taken: 0.0018839836120605469 seconds
+Matrix size: 700 x 700, Time taken: 0.003946065902709961 seconds
+Matrix size: 900 x 900, Time taken: 0.008172035217285156 seconds
+Matrix size: 1300 x 1300, Time taken: 0.020615816116333008 seconds
+Matrix size: 2000 x 2000, Time taken: 0.07111001014709473 seconds
+Matrix size: 4000 x 4000, Time taken: 0.5325109958648682 seconds
+Matrix size: 6000 x 6000, Time taken: 2.074859142303467 seconds
+Matrix size: 8000 x 8000, Time taken: 4.900615215301514 seconds
