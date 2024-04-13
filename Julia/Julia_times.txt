@@ -9,3 +9,15 @@ Matrix size: 2000 x 2000, Time taken: 0.07111001014709473 seconds
 Matrix size: 4000 x 4000, Time taken: 0.5325109958648682 seconds
 Matrix size: 6000 x 6000, Time taken: 2.074859142303467 seconds
 Matrix size: 8000 x 8000, Time taken: 4.900615215301514 seconds
+
+Matrix times with CUDA:
+Matrix size: 100 x 100, GPU Time taken: 0.000108512 seconds
+Matrix size: 300 x 300, GPU Time taken: 0.000299264 seconds
+Matrix size: 500 x 500, GPU Time taken: 0.00027811198 seconds
+Matrix size: 700 x 700, GPU Time taken: 0.00085958396 seconds
+Matrix size: 900 x 900, GPU Time taken: 0.001239648 seconds
+Matrix size: 1300 x 1300, GPU Time taken: 0.002941984 seconds
+Matrix size: 2000 x 2000, GPU Time taken: 0.008219328 seconds
+Matrix size: 4000 x 4000, GPU Time taken: 0.06722493 seconds
+Matrix size: 6000 x 6000, GPU Time taken: 0.21636927 seconds
+Matrix size: 8000 x 8000, GPU Time taken: 0.5181641 seconds
