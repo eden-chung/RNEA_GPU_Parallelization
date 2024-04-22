@@ -130,12 +130,52 @@ xmat_func_arr = [
         [ 0.0, 0.0, 0.0, 0.0, 1.0, 0.0]
     ]
 ]
-
 println("x_mat is", xmat_func_arr)
 
 #########
 
 using LinearAlgebra
+
+#cross operator
+function cross_operator_batched(d_vec, d_output)
+    for k in 1:size(d_vec, 2)
+        d_output[1, 2, k] = -d_vec[2, k]
+        d_output[1, 3, k] = d_vec[1, k]
+        d_output[2, 1, k] = d_vec[2, k]
+        d_output[2, 3, k] = -d_vec[1, k]
+        d_output[3, 1, k] = -d_vec[2, k]
+        d_output[3, 2, k] = d_vec[1, k]
+
+        d_output[4, 2, k] = -d_vec[5, k]
+        d_output[4, 3, k] = d_vec[4, k]
+        d_output[4, 5, k] = -d_vec[2, k]
+        d_output[4, 6, k] = d_vec[1, k]
+        d_output[5, 1, k] = d_vec[5, k]
+        d_output[5, 3, k] = -d_vec[4, k]
+        d_output[5, 4, k] = d_vec[2, k]
+        d_output[5, 6, k] = -d_vec[1, k]
+        d_output[6, 1, k] = -d_vec[5, k]
+        d_output[6, 2, k] = d_vec[4, k]
+        d_output[6, 4, k] = -d_vec[2, k]
+        d_output[6, 5, k] = d_vec[1, k]
+    end
+end
+
+function benchmark_cross_operator(batch_size, alpha, repetitions)
+    h_vec_batched = ones(6, batch_size)
+    h_output_batched = zeros(6, 6, batch_size)
+
+    cross_operator_batched(h_vec_batched, h_output_batched)
+    println("Cross operator output shape: ", size(h_output_batched))
+
+    start_time = time()
+    for i in 1:repetitions
+        cross_operator_batched(h_vec_batched, h_output_batched)
+    end
+    elapsed_time = time() - start_time
+    println("Benchmark time for $repetitions repetitions: $elapsed_time seconds")
+end
+
 
 function mxS(S, vec, vec_output, mxS_output, alpha=1)
     cross_operator_batched(vec, vec_output)
@@ -153,7 +193,7 @@ function benchmark_mxS(batch_size, alpha, repetitions)
     # Timing
     start_time = time()
     for i in 1:repetitions
-        mxS_julia(h_s_vec_batched, h_vec_batched, h_output_batched, h_mxS_output_batched, alpha)
+        mxS(h_s_vec_batched, h_vec_batched, h_output_batched, h_mxS_output_batched, alpha)
     end
     end_time = time()
 
@@ -165,6 +205,7 @@ function main()
     batch_size = 100
     alpha = 0.1
     repetitions = 100
+    benchmark_cross_operator(batch_size, alpha, repetitions)
     benchmark_mxS(batch_size, alpha, repetitions)
 end
 
