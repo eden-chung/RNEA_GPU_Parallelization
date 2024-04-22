@@ -3,7 +3,7 @@ qd = [ 0.433  -0.4216 -0.6454 -1.8605 -0.0131 -0.4583  0.7412]
 u = [ 0.7418  1.9284 -0.9039  0.0334  1.1799 -1.946   0.3287]
 n = 7
 
-parent_id_arry = [-1, 0, 1, 2, 3, 4, 5]
+parent_id_arr = [-1, 0, 1, 2, 3, 4, 5]
 
 S_arr = [[0. 0. 1. 0. 0. 0.]
 [0. 0. 1. 0. 0. 0.]
@@ -12,8 +12,6 @@ S_arr = [[0. 0. 1. 0. 0. 0.]
 [0. 0. 1. 0. 0. 0.]
 [0. 0. 1. 0. 0. 0.]
 [0. 0. 1. 0. 0. 0.]]
-
-
 
 Imat_arr = [
     [
@@ -139,7 +137,7 @@ println("x_mat is", xmat_func_arr)
 
 using LinearAlgebra
 
-function mxS_julia(S, vec, vec_output, mxS_output, alpha=1)
+function mxS(S, vec, vec_output, mxS_output, alpha=1)
     cross_operator_batched(vec, vec_output)
     for i in 1:size(vec_output, 3)
         mxS_output[:, i] .= alpha * (vec_output[:, :, i] * S[:, i])
@@ -171,6 +169,3 @@ function main()
 end
 
 main()
-
-# Uncomment the following line to run the main function directly if this script is executed.
-# main()
