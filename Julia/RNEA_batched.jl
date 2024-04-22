@@ -133,5 +133,44 @@ xmat_func_arr = [
     ]
 ]
 
-
 println("x_mat is", xmat_func_arr)
+
+#########
+
+using LinearAlgebra
+
+function mxS_julia(S, vec, vec_output, mxS_output, alpha=1)
+    cross_operator_batched(vec, vec_output)
+    for i in 1:size(vec_output, 3)
+        mxS_output[:, i] .= alpha * (vec_output[:, :, i] * S[:, i])
+    end
+end
+
+function benchmark_mxS(batch_size, alpha, repetitions)
+    h_vec_batched = ones(6, batch_size)
+    h_s_vec_batched = repeat(ones(6, 1), 1, 1, batch_size)
+    h_output_batched = zeros(6, 6, batch_size)
+    h_mxS_output_batched = zeros(6, batch_size)
+
+    # Timing
+    start_time = time()
+    for i in 1:repetitions
+        mxS_julia(h_s_vec_batched, h_vec_batched, h_output_batched, h_mxS_output_batched, alpha)
+    end
+    end_time = time()
+
+    elapsed_time = end_time - start_time
+    println("Benchmark time for $repetitions repetitions: $elapsed_time seconds")
+end
+
+function main()
+    batch_size = 100
+    alpha = 0.1
+    repetitions = 100
+    benchmark_mxS(batch_size, alpha, repetitions)
+end
+
+main()
+
+# Uncomment the following line to run the main function directly if this script is executed.
+# main()
