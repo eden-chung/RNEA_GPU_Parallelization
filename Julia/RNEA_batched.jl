@@ -3,7 +3,7 @@ qd = [ 0.433  -0.4216 -0.6454 -1.8605 -0.0131 -0.4583  0.7412]
 u = [ 0.7418  1.9284 -0.9039  0.0334  1.1799 -1.946   0.3287]
 n = 7
 
-parent_id_arry = [-1, 0, 1, 2, 3, 4, 5]
+parent_id_arr = [-1, 0, 1, 2, 3, 4, 5]
 
 S_arr = [[0. 0. 1. 0. 0. 0.]
 [0. 0. 1. 0. 0. 0.]
@@ -12,8 +12,6 @@ S_arr = [[0. 0. 1. 0. 0. 0.]
 [0. 0. 1. 0. 0. 0.]
 [0. 0. 1. 0. 0. 0.]
 [0. 0. 1. 0. 0. 0.]]
-
-
 
 Imat_arr = [
     [
@@ -134,6 +132,10 @@ xmat_func_arr = [
 ]
 println("x_mat is", xmat_func_arr)
 
+#########
+
+using LinearAlgebra
+
 #cross operator
 function cross_operator_batched(d_vec, d_output)
     for k in 1:size(d_vec, 2)
@@ -159,16 +161,53 @@ function cross_operator_batched(d_vec, d_output)
     end
 end
 
-# COMPARING to batched
-batch_size = 100
-h_vec_batched = ones(6, batch_size)
-h_output_batched = zeros(6, 6, batch_size)
+function benchmark_cross_operator(batch_size, alpha, repetitions)
+    h_vec_batched = ones(6, batch_size)
+    h_output_batched = zeros(6, 6, batch_size)
 
-# on CPU
-cross_operator_batched(h_vec_batched, h_output_batched) # warm-up once
-println("cross operator output shape: ", size(h_output_batched))
-startnext = time()
-for i in 1:100
     cross_operator_batched(h_vec_batched, h_output_batched)
+    println("Cross operator output shape: ", size(h_output_batched))
+
+    start_time = time()
+    for i in 1:repetitions
+        cross_operator_batched(h_vec_batched, h_output_batched)
+    end
+    elapsed_time = time() - start_time
+    println("Benchmark time for $repetitions repetitions: $elapsed_time seconds")
 end
-println("CPU Batched No JIT: ", time() - startnext)
+
+
+function mxS(S, vec, vec_output, mxS_output, alpha=1)
+    cross_operator_batched(vec, vec_output)
+    for i in 1:size(vec_output, 3)
+        mxS_output[:, i] .= alpha * (vec_output[:, :, i] * S[:, :, i])  # Adjusted assuming S is correctly sized
+    end
+end
+
+
+function benchmark_mxS(batch_size, alpha, repetitions)
+    h_vec_batched = ones(6, batch_size)
+    h_s_vec_batched = repeat(ones(6, 1), 1, 1, batch_size)
+    h_output_batched = zeros(6, 6, batch_size)
+    h_mxS_output_batched = zeros(6, batch_size)
+
+    # Timing
+    start_time = time()
+    for i in 1:repetitions
+        mxS(h_s_vec_batched, h_vec_batched, h_output_batched, h_mxS_output_batched, alpha)
+    end
+    end_time = time()
+
+    elapsed_time = end_time - start_time
+    println("Benchmark time for $repetitions repetitions: $elapsed_time seconds")
+end
+
+function main()
+    batch_size = 100
+    alpha = 0.1
+    repetitions = 100
+    benchmark_cross_operator(batch_size, alpha, repetitions)
+    benchmark_mxS(batch_size, alpha, repetitions)
+end
+
+main()
