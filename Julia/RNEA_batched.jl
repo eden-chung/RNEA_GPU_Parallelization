@@ -132,6 +132,43 @@ xmat_func_arr = [
         [ 0.0, 0.0, 0.0, 0.0, 1.0, 0.0]
     ]
 ]
-
-
 println("x_mat is", xmat_func_arr)
+
+#cross operator
+function cross_operator_batched(d_vec, d_output)
+    for k in 1:size(d_vec, 2)
+        d_output[1, 2, k] = -d_vec[2, k]
+        d_output[1, 3, k] = d_vec[1, k]
+        d_output[2, 1, k] = d_vec[2, k]
+        d_output[2, 3, k] = -d_vec[1, k]
+        d_output[3, 1, k] = -d_vec[2, k]
+        d_output[3, 2, k] = d_vec[1, k]
+
+        d_output[4, 2, k] = -d_vec[5, k]
+        d_output[4, 3, k] = d_vec[4, k]
+        d_output[4, 5, k] = -d_vec[2, k]
+        d_output[4, 6, k] = d_vec[1, k]
+        d_output[5, 1, k] = d_vec[5, k]
+        d_output[5, 3, k] = -d_vec[4, k]
+        d_output[5, 4, k] = d_vec[2, k]
+        d_output[5, 6, k] = -d_vec[1, k]
+        d_output[6, 1, k] = -d_vec[5, k]
+        d_output[6, 2, k] = d_vec[4, k]
+        d_output[6, 4, k] = -d_vec[2, k]
+        d_output[6, 5, k] = d_vec[1, k]
+    end
+end
+
+# COMPARING to batched
+batch_size = 100
+h_vec_batched = ones(6, batch_size)
+h_output_batched = zeros(6, 6, batch_size)
+
+# on CPU
+cross_operator_batched(h_vec_batched, h_output_batched) # warm-up once
+println("cross operator output shape: ", size(h_output_batched))
+startnext = time()
+for i in 1:100
+    cross_operator_batched(h_vec_batched, h_output_batched)
+end
+println("CPU Batched No JIT: ", time() - startnext)
