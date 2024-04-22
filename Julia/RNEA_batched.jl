@@ -180,9 +180,10 @@ end
 function mxS(S, vec, vec_output, mxS_output, alpha=1)
     cross_operator_batched(vec, vec_output)
     for i in 1:size(vec_output, 3)
-        mxS_output[:, i] .= alpha * (vec_output[:, :, i] * S[:, i])
+        mxS_output[:, i] .= alpha * (vec_output[:, :, i] * S[:, :, i])  # Adjusted assuming S is correctly sized
     end
 end
+
 
 function benchmark_mxS(batch_size, alpha, repetitions)
     h_vec_batched = ones(6, batch_size)
