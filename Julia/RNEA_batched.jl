@@ -307,7 +307,10 @@ function rnea_fpass(num_joints, parent_id_arr, xmat_func_arr, S_arr, Imat_arr, c
         if parent_ind == -1
             print("shape of Xmat: ", size(Xmat))
             print("shape of gravity_vec: ", size(gravity_vec))
-            a[:, ind, :] .= Xmat * gravity_vec
+            #a[:, ind, :] .= Xmat * gravity_vec
+            gravity_vec_3d = reshape(gravity_vec, 1, size(gravity_vec, 1), size(gravity_vec, 2))
+            a[:, ind, :] .= dropdims(sum(Xmat .* gravity_vec_3d, dims=1), dims=1)
+            print("shape of a: ", size(a), "\n")
         else
             v[:, ind, :] .= Xmat * v[:, parent_ind + 1, :]
             a[:, ind, :] .= Xmat * a[:, parent_ind + 1, :]
@@ -315,7 +318,17 @@ function rnea_fpass(num_joints, parent_id_arr, xmat_func_arr, S_arr, Imat_arr, c
 
         v[:, ind, :] .+= S .* qd[ind]
 
+        print("S size", size(S), "\n")
+        print("v size", size(v), "\n")
+        print("v[:, ind, :] size", size(v[:, ind, :]), "\n")
+        print("cr0p output", size(crOp_output), "\n")
+        print("mxS output", size(mxS_output), "\n")
+        print("qd size", size(qd), "\n")
+        print("qd[ind] size", size(qd[ind]), "\n")
+
         mxS(S, v[:, ind, :], crOp_output, mxS_output, qd[ind])
+
+        print("test1")
         a[:, ind, :] .+= mxS_output
 
         if qdd !== nothing
