@@ -289,6 +289,40 @@ function benchmark_mxS(batch_size, alpha, repetitions)
     println("Benchmark time for $repetitions repetitions: $elapsed_time seconds")
 end
 
+function vxIv(vec, Imat, res, batch_size)
+    temp = sum(Imat .* vec, dims=1)  # Element-wise multiplication and summation along the first dimension
+
+    vecXIvec = zeros(Float64, 6, batch_size)
+
+    for i in 1:batch_size
+        vecXIvec[1, i] = -vec[3, 1, i] * temp[1, 1, i] + vec[2, 1, i] * temp[1, 1, i] - vec[3+3, 1, i] * temp[1, 1, i] + vec[2+3, 1, i] * temp[1, 1, i]
+        vecXIvec[2, i] = vec[3, 1, i] * temp[1, 1, i] - vec[1, 1, i] * temp[1, 1, i] + vec[3+3, 1, i] * temp[1, 1, i] - vec[1+3, 1, i] * temp[1, 1, i]
+        vecXIvec[3, i] = -vec[2, 1, i] * temp[1, 1, i] + vec[1, 1, i] * temp[1, 1, i] - vec[2+3, 1, i] * temp[1, 1, i] + vec[1+3, 1, i] * temp[1, 1, i]
+        vecXIvec[4, i] = -vec[3, 1, i] * temp[1, 1, i] + vec[2, 1, i] * temp[1, 1, i]
+        vecXIvec[5, i] = vec[3, 1, i] * temp[1, 1, i] - vec[1, 1, i] * temp[1, 1, i]
+        vecXIvec[6, i] = -vec[2, 1, i] * temp[1, 1, i] + vec[1, 1, i] * temp[1, 1, i]
+    end
+
+    res .= vecXIvec
+end
+
+function benchmark_vxIv(batch_size, alpha, repetitions)
+    # COMPARING to batched
+    h_vec_batched = vec = ones(Float64, 6, 1, batch_size)#ones(Float64, 6, batch_size)
+    h_I_batched = ones(Float64, 6, 6, batch_size)
+    h_output_batched = zeros(Float64, 6, batch_size)
+
+    # CPU/with numpy
+    @time vxIv(h_vec_batched, h_I_batched, h_output_batched, batch_size) # warm-up once
+    println("vxIV shape: ", size(h_output_batched))
+    # testing in loop of 100
+    startnext = time()
+    for i in 1:repetitions
+        vxIv(h_vec_batched, h_I_batched, h_output_batched, batch_size)
+    end
+    println("CPU without jit Batched vxIv: ", time() - startnext)
+end
+
 function rnea_fpass(num_joints, parent_id_arr, xmat_func_arr, S_arr, Imat_arr, crOp_output, mxS_output, vxIv_output, batch_size, q, qd, qdd = nothing, GRAVITY = -9.81)
     n = num_joints
 
@@ -364,6 +398,7 @@ function main()
     repetitions = 100
     benchmark_cross_operator(batch_size, alpha, repetitions)
     benchmark_mxS(batch_size, alpha, repetitions)
+    benchmark_vxIv(batch_size, alpha, repetitions)
     benchmark_rnea_fpass(n, parent_id_arr, h_xmat_func_arr_batched, h_S_arr_batched, h_Imat_arr_batched, h_crOp_output_batched, h_mxS_output_batched, h_vxIv_output_batched, batch_size, h_q_batched, h_qd_batched, 100)
 end
 
