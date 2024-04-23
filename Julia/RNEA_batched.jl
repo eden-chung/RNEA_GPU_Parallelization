@@ -259,11 +259,15 @@ function benchmark_cross_operator(batch_size, alpha, repetitions)
     println("Benchmark time for $repetitions repetitions: $elapsed_time seconds")
 end
 
-
 function mxS(S, vec, vec_output, mxS_output, alpha=1)
+    print("dimensions of S", size(S), "\n")
     cross_operator_batched(vec, vec_output)
     for i in 1:size(vec_output, 3)
-        mxS_output[:, i] .= alpha * (vec_output[:, :, i] * S[:, :, i])  # Adjusted assuming S is correctly sized
+        if ndims(S) == 3
+            mxS_output[:, i] .= alpha * (vec_output[:, :, i] * S[:, :, i])
+        else
+            mxS_output[:, i] .= alpha * (vec_output[:, :, i] * S[:, i])
+        end
     end
 end
 
