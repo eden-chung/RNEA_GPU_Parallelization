@@ -392,6 +392,43 @@ function benchmark_rnea_fpass(n, parent_id_arr, xmat_func_arr, S_arr, Imat_arr, 
     println("CPU batched fpass with Julia: $elapsed_time seconds")
 end
 
+function rnea_bpass(S_arr, parent_id_arr, xmat_func_arr, q, qd, f; USE_VELOCITY_DAMPING=false)
+    # Allocate memory
+    n = length(q)
+    c = zeros(n, size(f, 2))
+
+    # Backward pass
+    for ind in n:-1:1
+        S = S_arr[:, :, ind]
+        c[ind, :] = sum(S .* f[:, ind, :], dims=1)
+
+        parent_ind = parent_id_arr[ind]
+        if parent_ind != -1
+            Xmat = xmat_func_arr[ind, :, :]
+            temp = sum(Xmat .* f[:, ind, :], dims=2)
+            f[:, parent_ind, :] .+= temp
+        end
+    end
+
+    return c, f
+end
+
+function benchmark_rnea_bpass(h_S_arr_batched, parent_id_arr, h_xmat_func_arr_batched, h_q_batched, h_qd_batched, f, USE_VELOCITY_DAMPING = false, n, xmat_func_arr, S_arr, Imat_arr, crOp_output, mxS_output, vxIv_output, batch_size, q, qd, itr, qdd=nothing, GRAVITY=-9.81)
+    # For reference, batch_size is 10000 above
+    itr = 100
+
+    # First run Numpy fpass
+    v, a, f = rnea_fpass(n, parent_id_arr, xmat_func_arr, S_arr, Imat_arr, crOp_output, mxS_output, vxIv_output, batch_size, q, qd, qdd, GRAVITY)
+
+    # Warm-up once
+    c, f = rnea_bpass(h_S_arr_batched, parent_id_arr, h_xmat_func_arr_batched, h_q_batched, h_qd_batched, f, USE_VELOCITY_DAMPING = false)
+
+    startnext = time()
+    for i in 1:itr
+        rnea_bpass(h_S_arr_batched, parent_id_arr, h_xmat_func_arr_batched, h_q_batched, h_qd_batched, f, USE_VELOCITY_DAMPING = false)
+    end
+    println("GPU Batched bpass with numpy: ", time() - startnext)
+end
 
 function main()
     alpha = 0.1
@@ -399,7 +436,8 @@ function main()
     benchmark_cross_operator(batch_size, alpha, repetitions)
     benchmark_mxS(batch_size, alpha, repetitions)
     benchmark_vxIv(batch_size, alpha, repetitions)
-    benchmark_rnea_fpass(n, parent_id_arr, h_xmat_func_arr_batched, h_S_arr_batched, h_Imat_arr_batched, h_crOp_output_batched, h_mxS_output_batched, h_vxIv_output_batched, batch_size, h_q_batched, h_qd_batched, 100)
+    benchmark_rnea_bpass((h_S_arr_batched, parent_id_arr, h_xmat_func_arr_batched, h_q_batched, h_qd_batched, f, USE_VELOCITY_DAMPING = false, n, xmat_func_arr, S_arr, Imat_arr, crOp_output, mxS_output, vxIv_output, batch_size, q, qd, itr)
+    #benchmark_rnea_fpass(n, parent_id_arr, h_xmat_func_arr_batched, h_S_arr_batched, h_Imat_arr_batched, h_crOp_output_batched, h_mxS_output_batched, h_vxIv_output_batched, batch_size, h_q_batched, h_qd_batched, 100)
 end
 
 main()
