@@ -5,7 +5,10 @@ qd = [ 0.433  -0.4216 -0.6454 -1.8605 -0.0131 -0.4583  0.7412]
 u = [ 0.7418  1.9284 -0.9039  0.0334  1.1799 -1.946   0.3287]
 n = 7
 
-parent_id_arr = [-1, 0, 1, 2, 3, 4, 5]
+#parent_id_arr = [-1, 0, 1, 2, 3, 4, 5]
+parent_id_arr = [-1, 1, 2, 3, 4, 5, 6]
+
+print("parent_id_arr", parent_id_arr, "\n")
 
 S_arr = [[0. 0. 1. 0. 0. 0.]
 [0. 0. 1. 0. 0. 0.]
@@ -14,65 +17,6 @@ S_arr = [[0. 0. 1. 0. 0. 0.]
 [0. 0. 1. 0. 0. 0.]
 [0. 0. 1. 0. 0. 0.]
 [0. 0. 1. 0. 0. 0.]]
-
-# Imat_arr = [
-#     [
-#         [ 0.2091  0.0  0.0  0.0  -0.6912 -0.1728]
-#         [ 0.0  0.1989 -0.0003  0.6912  0.0  0.0]
-#         [ 0.0 -0.0003  0.0227  0.1728  0.0  0.0]
-#         [ 0.0  0.6912  0.1728  5.76    0.0  0.0]
-#         [-0.6912  0.0  0.0  0.0  5.76    0.0]
-#         [-0.1728  0.0  0.0  0.0  0.0  5.76  ]
-#     ]
-#     [
-#         [ 0.0971 -0.0 -0.0  0.0  -0.2667  0.3746]
-#         [-0.0  0.0528 -0.0  0.2667  0.0  -0.0019]
-#         [-0.0 -0.0  0.0552 -0.3746  0.0019  0.0]
-#         [ 0.0  0.2667 -0.3746  6.35    0.0  0.0]
-#         [-0.2667  0.0  0.0019  0.0  6.35    0.0]
-#         [ 0.3746 -0.0019  0.0  0.0  0.0  6.35  ]
-#     ]
-#     [
-#         [ 0.1496  0.0  0.0  0.0  -0.455   0.105 ]
-#         [ 0.0  0.1421  0.0003  0.455   0.0  0.0]
-#         [ 0.0  0.0003  0.014  -0.105   0.0  0.0]
-#         [ 0.0  0.455  -0.105   3.5     0.0  0.0]
-#         [-0.455   0.0  0.0  0.0  3.5     0.0]
-#         [ 0.105   0.0  0.0  0.0  0.0  3.5   ]
-#     ]
-#     [
-#         [ 0.0566  0.0  0.0  0.0  -0.119   0.2345]
-#         [ 0.0  0.0245  0.0  0.119   0.0  0.0]
-#         [ 0.0  0.0  0.0374 -0.2345  0.0  0.0]
-#         [ 0.0  0.119  -0.2345  3.5     0.0  0.0]
-#         [-0.119   0.0  0.0  0.0  3.5     0.0]
-#         [ 0.2345  0.0  0.0  0.0  0.0  3.5   ]
-#     ]
-#     [
-#         [ 0.0536 -0.0  0.0  0.0  -0.266   0.0735]
-#         [-0.0  0.0491  0.0  0.266   0.0  -0.0003]
-#         [ 0.0  0.0  0.0075 -0.0735  0.0003  0.0]
-#         [ 0.0  0.266  -0.0735  3.5     0.0  0.0]
-#         [-0.266   0.0  0.0003  0.0  3.5     0.0]
-#         [ 0.0735 -0.0003  0.0  0.0  0.0  3.5   ]
-#     ]
-#     [
-#         [ 0.0049  0.0  0.0  0.0  -0.0007  0.0011]
-#         [ 0.0  0.0047 -0.0  0.0007  0.0  0.0]
-#         [ 0.0 -0.0  0.0036 -0.0011  0.0  0.0]
-#         [ 0.0  0.0007 -0.0011  1.8     0.0  0.0]
-#         [-0.0007  0.0  0.0  0.0  1.8     0.0]
-#         [ 0.0011  0.0  0.0  0.0  0.0  1.8   ]
-#     ]
-#     [
-#         [ 0.006   0.0  0.0  0.0  -0.024   0.    ]
-#         [ 0.0  0.006   0.0  0.024   0.0  0.    ]
-#         [ 0.0  0.0  0.005   0.0  0.0  0.    ]
-#         [ 0.0  0.024   0.0  1.2     0.0  0.0]
-#         [-0.024   0.0  0.0  0.0  1.2     0.0]
-#         [ 0.0  0.0  0.0  0.0  0.0  1.2   ]
-#     ]
-# ]
 
 imat1 = reshape([0.2091  0.0  0.0  0.0  -0.6912 -0.1728;
 0.0  0.1989 -0.0003  0.6912  0.0  0.0;
@@ -260,7 +204,7 @@ function benchmark_cross_operator(batch_size, alpha, repetitions)
 end
 
 function mxS(S, vec, vec_output, mxS_output, alpha=1)
-    print("dimensions of S", size(S), "\n")
+    #print("dimensions of S", size(S), "\n")
     cross_operator_batched(vec, vec_output)
     for i in 1:size(vec_output, 3)
         if ndims(S) == 3
@@ -290,17 +234,28 @@ function benchmark_mxS(batch_size, alpha, repetitions)
 end
 
 function vxIv(vec, Imat, res, batch_size)
+    #print("parent_id_arr", parent_id_arr, "\n")
+    #print("vec is: ", size(vec), "\n")
     temp = sum(Imat .* vec, dims=1)  # Element-wise multiplication and summation along the first dimension
 
     vecXIvec = zeros(Float64, 6, batch_size)
 
     for i in 1:batch_size
-        vecXIvec[1, i] = -vec[3, 1, i] * temp[1, 1, i] + vec[2, 1, i] * temp[1, 1, i] - vec[3+3, 1, i] * temp[1, 1, i] + vec[2+3, 1, i] * temp[1, 1, i]
-        vecXIvec[2, i] = vec[3, 1, i] * temp[1, 1, i] - vec[1, 1, i] * temp[1, 1, i] + vec[3+3, 1, i] * temp[1, 1, i] - vec[1+3, 1, i] * temp[1, 1, i]
-        vecXIvec[3, i] = -vec[2, 1, i] * temp[1, 1, i] + vec[1, 1, i] * temp[1, 1, i] - vec[2+3, 1, i] * temp[1, 1, i] + vec[1+3, 1, i] * temp[1, 1, i]
-        vecXIvec[4, i] = -vec[3, 1, i] * temp[1, 1, i] + vec[2, 1, i] * temp[1, 1, i]
-        vecXIvec[5, i] = vec[3, 1, i] * temp[1, 1, i] - vec[1, 1, i] * temp[1, 1, i]
-        vecXIvec[6, i] = -vec[2, 1, i] * temp[1, 1, i] + vec[1, 1, i] * temp[1, 1, i]
+        if ndims(vec) == 3
+            vecXIvec[1, i] = -vec[3, 1, i] * temp[1, 1, i] + vec[2, 1, i] * temp[1, 1, i] - vec[3+3, 1, i] * temp[1, 1, i] + vec[2+3, 1, i] * temp[1, 1, i]
+            vecXIvec[2, i] = vec[3, 1, i] * temp[1, 1, i] - vec[1, 1, i] * temp[1, 1, i] + vec[3+3, 1, i] * temp[1, 1, i] - vec[1+3, 1, i] * temp[1, 1, i]
+            vecXIvec[3, i] = -vec[2, 1, i] * temp[1, 1, i] + vec[1, 1, i] * temp[1, 1, i] - vec[2+3, 1, i] * temp[1, 1, i] + vec[1+3, 1, i] * temp[1, 1, i]
+            vecXIvec[4, i] = -vec[3, 1, i] * temp[1, 1, i] + vec[2, 1, i] * temp[1, 1, i]
+            vecXIvec[5, i] = vec[3, 1, i] * temp[1, 1, i] - vec[1, 1, i] * temp[1, 1, i]
+            vecXIvec[6, i] = -vec[2, 1, i] * temp[1, 1, i] + vec[1, 1, i] * temp[1, 1, i]
+        else
+            vecXIvec[1, i] = -vec[3, i] * temp[1, i] + vec[2, i] * temp[1, i] - vec[6, i] * temp[1, i] + vec[5, i] * temp[1, i]
+            vecXIvec[2, i] = vec[3, i] * temp[1, i] - vec[1, i] * temp[1, i] + vec[6, i] * temp[1, i] - vec[4, i] * temp[1, i]
+            vecXIvec[3, i] = -vec[2, i] * temp[1, i] + vec[1, i] * temp[1, i] - vec[5, i] * temp[1, i] + vec[4, i] * temp[1, i]
+            vecXIvec[4, i] = -vec[3, i] * temp[1, i] + vec[2, i] * temp[1, i]
+            vecXIvec[5, i] = vec[3, i] * temp[1, i] - vec[1, i] * temp[1, i]
+            vecXIvec[6, i] = -vec[2, i] * temp[1, i] + vec[1, i] * temp[1, i]
+        end
     end
 
     res .= vecXIvec
@@ -320,10 +275,13 @@ function benchmark_vxIv(batch_size, alpha, repetitions)
     for i in 1:repetitions
         vxIv(h_vec_batched, h_I_batched, h_output_batched, batch_size)
     end
-    println("CPU without jit Batched vxIv: ", time() - startnext)
+    elapsed_time = time() - startnext
+    println("Benchmark time for $repetitions repetitions: $elapsed_time seconds")
+
 end
 
 function rnea_fpass(num_joints, parent_id_arr, xmat_func_arr, S_arr, Imat_arr, crOp_output, mxS_output, vxIv_output, batch_size, q, qd, qdd = nothing, GRAVITY = -9.81)
+    #print("parent_id_arr", parent_id_arr, "\n")
     n = num_joints
 
     v = zeros(6, n, batch_size)
@@ -334,39 +292,50 @@ function rnea_fpass(num_joints, parent_id_arr, xmat_func_arr, S_arr, Imat_arr, c
     gravity_vec[6, :] .= GRAVITY
 
     for ind in 1:n
+        # print("ind is", ind, "\n")
+        # print("parent_id_arr", parent_id_arr, "\n")
         parent_ind = parent_id_arr[ind]
 
-        print("shape of xmat_Func_arr", size(xmat_func_arr))
+        # print("shape of xmat_Func_arr", size(xmat_func_arr))
         Xmat = xmat_func_arr[ind, :, :, :]
 
-        println("Shape of S_arr: ", size(S_arr))
+        # println("Shape of S_arr: ", size(S_arr))
         S = S_arr[ind, :, :]
 
+        # print("parent_ind is", parent_ind)
+
         if parent_ind == -1
-            print("shape of Xmat: ", size(Xmat))
-            print("shape of gravity_vec: ", size(gravity_vec))
+            #print("shape of Xmat: ", size(Xmat))
+            #print("shape of gravity_vec: ", size(gravity_vec))
             #a[:, ind, :] .= Xmat * gravity_vec
             gravity_vec_3d = reshape(gravity_vec, 1, size(gravity_vec, 1), size(gravity_vec, 2))
             a[:, ind, :] .= dropdims(sum(Xmat .* gravity_vec_3d, dims=1), dims=1)
-            print("shape of a: ", size(a), "\n")
+            #print("shape of a: ", size(a), "\n")
         else
-            v[:, ind, :] .= Xmat * v[:, parent_ind + 1, :]
-            a[:, ind, :] .= Xmat * a[:, parent_ind + 1, :]
+            for i in 1:size(v, 3)
+                v[:, ind, i] .= Xmat[:, :, i] * v[:, parent_ind, i]
+                #v[:, ind, i] .= Xmat[:, :, i] * v[:, parent_ind + 1, i] this is to modify 0 indexing before i modified the array at the start
+            end
+            for i in 1:size(v, 3)
+                a[:, ind, i] .= Xmat[:, :, i] * a[:, parent_ind, i]
+                #a[:, ind, i] .= Xmat[:, :, i] * a[:, parent_ind + 1, i] this is to modify 0 indexing before i modified the array at the start
+            end
+            #v[:, ind, :] .= Xmat * v[:, parent_ind + 1, :]
+            #a[:, ind, :] .= Xmat * a[:, parent_ind + 1, :]
         end
 
         v[:, ind, :] .+= S .* qd[ind]
 
-        print("S size", size(S), "\n")
-        print("v size", size(v), "\n")
-        print("v[:, ind, :] size", size(v[:, ind, :]), "\n")
-        print("cr0p output", size(crOp_output), "\n")
-        print("mxS output", size(mxS_output), "\n")
-        print("qd size", size(qd), "\n")
-        print("qd[ind] size", size(qd[ind]), "\n")
+        # print("S size", size(S), "\n")
+        # print("v size", size(v), "\n")
+        # print("v[:, ind, :] size", size(v[:, ind, :]), "\n")
+        # print("cr0p output", size(crOp_output), "\n")
+        # print("mxS output", size(mxS_output), "\n")
+        # print("qd size", size(qd), "\n")
+        # print("qd[ind] size", size(qd[ind]), "\n")
 
         mxS(S, v[:, ind, :], crOp_output, mxS_output, qd[ind])
 
-        print("test1")
         a[:, ind, :] .+= mxS_output
 
         if qdd !== nothing
@@ -394,26 +363,67 @@ end
 
 function rnea_bpass(S_arr, parent_id_arr, xmat_func_arr, q, qd, f; USE_VELOCITY_DAMPING=false)
     # Allocate memory
-    n = length(q)
-    c = zeros(n, size(f, 2))
+    #n = length(q)
+    n = size(q, 1)
+    c = zeros(n, size(f, 3))
+
+    print("n length", n, "\n")
 
     # Backward pass
     for ind in n:-1:1
-        S = S_arr[:, :, ind]
-        c[ind, :] = sum(S .* f[:, ind, :], dims=1)
+        #S = S_arr[:, :, ind]
+        print("ind is", ind, "\n")
+        print("size of S_arr", size(S_arr), "\n")
+        S = S_arr[ind, :, :]
+        #c[ind, :] = sum(S .* f[:, ind, :], dims=1)
+        print("size of S", size(S), "\n")
+        print("size of f", size(f), "\n")
 
+        #c[ind, :] = sum(reshape(S, size(S)..., 1) .* f[:, ind, :], dims=2)
+
+        #c[ind, :] = sum(S .* f[:, ind, :], dims=2)
+        for j in 1:size(f, 3)
+            c[ind, j] = sum(S[:, j] .* f[:, ind, j])
+        end
+    
         parent_ind = parent_id_arr[ind]
         if parent_ind != -1
-            Xmat = xmat_func_arr[ind, :, :]
-            temp = sum(Xmat .* f[:, ind, :], dims=2)
-            f[:, parent_ind, :] .+= temp
+            #Xmat = xmat_func_arr[ind, :, :]
+            Xmat = xmat_func_arr[ind, :, :, :]
+
+            print("size of Xmat", size(Xmat), "\n")
+            print("size of f", size(f), "\n")
+
+            temp = sum(Xmat .* reshape(f[:, ind, :], size(f, 1), 1, size(f, 3)), dims=1)
+            f[:, parent_ind, :] .+= dropdims(temp, dims=1)
+
+            # temp = sum(Xmat .* f[:, ind, :], dims=2)
+            # f[:, parent_ind, :] .+= temp
         end
     end
 
     return c, f
 end
 
-function benchmark_rnea_bpass(h_S_arr_batched, parent_id_arr, h_xmat_func_arr_batched, h_q_batched, h_qd_batched, f, USE_VELOCITY_DAMPING = false, n, xmat_func_arr, S_arr, Imat_arr, crOp_output, mxS_output, vxIv_output, batch_size, q, qd, itr, qdd=nothing, GRAVITY=-9.81)
+# function benchmark_rnea_bpass(h_S_arr_batched, parent_id_arr, h_xmat_func_arr_batched, h_q_batched, h_qd_batched, n, xmat_func_arr, S_arr, Imat_arr, crOp_output, mxS_output, vxIv_output, batch_size, q, qd, itr, USE_VELOCITY_DAMPING = false, qdd=nothing, GRAVITY=-9.81)
+#     # For reference, batch_size is 10000 above
+#     itr = 100
+
+#     # First run Numpy fpass
+#     v, a, f = rnea_fpass(n, parent_id_arr, xmat_func_arr, S_arr, Imat_arr, crOp_output, mxS_output, vxIv_output, batch_size, q, qd, qdd, GRAVITY)
+#     print("f is", f, "\n")
+
+#     # Warm-up once
+#     c, f = rnea_bpass(h_S_arr_batched, parent_id_arr, h_xmat_func_arr_batched, h_q_batched, h_qd_batched, f, USE_VELOCITY_DAMPING = false)
+
+#     startnext = time()
+#     for i in 1:itr
+#         rnea_bpass(h_S_arr_batched, parent_id_arr, h_xmat_func_arr_batched, h_q_batched, h_qd_batched, f, USE_VELOCITY_DAMPING = false)
+#     end
+#     println("GPU Batched bpass with numpy: ", time() - startnext)
+# end
+
+function benchmark_rnea_bpass(n, parent_id_arr, xmat_func_arr, S_arr, Imat_arr, crOp_output, mxS_output, vxIv_output, batch_size, q, qd, itr, qdd=nothing, USE_VELOCITY_DAMPING = false, GRAVITY=-9.81)
     # For reference, batch_size is 10000 above
     itr = 100
 
@@ -421,11 +431,11 @@ function benchmark_rnea_bpass(h_S_arr_batched, parent_id_arr, h_xmat_func_arr_ba
     v, a, f = rnea_fpass(n, parent_id_arr, xmat_func_arr, S_arr, Imat_arr, crOp_output, mxS_output, vxIv_output, batch_size, q, qd, qdd, GRAVITY)
 
     # Warm-up once
-    c, f = rnea_bpass(h_S_arr_batched, parent_id_arr, h_xmat_func_arr_batched, h_q_batched, h_qd_batched, f, USE_VELOCITY_DAMPING = false)
+    c, f = rnea_bpass(S_arr, parent_id_arr, xmat_func_arr, q, qd, f, USE_VELOCITY_DAMPING = false)
 
     startnext = time()
     for i in 1:itr
-        rnea_bpass(h_S_arr_batched, parent_id_arr, h_xmat_func_arr_batched, h_q_batched, h_qd_batched, f, USE_VELOCITY_DAMPING = false)
+        rnea_bpass(S_arr, parent_id_arr, xmat_func_arr, q, qd, f, USE_VELOCITY_DAMPING = false)
     end
     println("GPU Batched bpass with numpy: ", time() - startnext)
 end
@@ -433,11 +443,16 @@ end
 function main()
     alpha = 0.1
     repetitions = 100
-    benchmark_cross_operator(batch_size, alpha, repetitions)
-    benchmark_mxS(batch_size, alpha, repetitions)
-    benchmark_vxIv(batch_size, alpha, repetitions)
-    benchmark_rnea_bpass((h_S_arr_batched, parent_id_arr, h_xmat_func_arr_batched, h_q_batched, h_qd_batched, f, USE_VELOCITY_DAMPING = false, n, xmat_func_arr, S_arr, Imat_arr, crOp_output, mxS_output, vxIv_output, batch_size, q, qd, itr)
+    #benchmark_cross_operator(batch_size, alpha, repetitions)
+    #benchmark_mxS(batch_size, alpha, repetitions)
+    #benchmark_vxIv(batch_size, alpha, repetitions)
     #benchmark_rnea_fpass(n, parent_id_arr, h_xmat_func_arr_batched, h_S_arr_batched, h_Imat_arr_batched, h_crOp_output_batched, h_mxS_output_batched, h_vxIv_output_batched, batch_size, h_q_batched, h_qd_batched, 100)
+    #benchmark_cross_operator(batch_size, alpha, repetitions)
+    #benchmark_mxS(batch_size, alpha, repetitions)
+    #benchmark_vxIv(batch_size, alpha, repetitions)
+    print("h_S_arr_batched size", size(h_S_arr_batched), "\n")
+    benchmark_rnea_bpass(n, parent_id_arr, h_xmat_func_arr_batched, h_S_arr_batched, h_Imat_arr_batched, h_crOp_output_batched, h_mxS_output_batched, h_vxIv_output_batched, batch_size, h_q_batched, h_qd_batched, repetitions)
+
 end
 
 main()
