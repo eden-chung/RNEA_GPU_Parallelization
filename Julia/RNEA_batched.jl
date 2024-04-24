@@ -8,7 +8,7 @@ n = 7
 #parent_id_arr = [-1, 0, 1, 2, 3, 4, 5]
 parent_id_arr = [-1, 1, 2, 3, 4, 5, 6]
 
-print("parent_id_arr", parent_id_arr, "\n")
+# print("parent_id_arr", parent_id_arr, "\n")
 
 S_arr = [[0. 0. 1. 0. 0. 0.]
 [0. 0. 1. 0. 0. 0.]
@@ -70,7 +70,7 @@ imat7 = reshape([0.006   0.0  0.0  0.0  -0.024   0.    ;
 Imat_arr = cat(imat1, imat2, imat3, imat4, imat5, imat6, imat7, dims=3)
 Imat_arr = permutedims(Imat_arr, (3, 1, 2))
 
-print("Imat_arr shape: ", size(Imat_arr), "\n")
+# print("Imat_arr shape: ", size(Imat_arr), "\n")
 
 
 xmat1 = reshape([0.4089 -0.9126 0.0 0.0 0.0 0.0;
@@ -126,7 +126,7 @@ xmat7 = reshape([-0.4089 0.0 -0.9126 0.0 0.0 0.0;
 xmat_func_arr = cat(xmat1, xmat2, xmat3, xmat4, xmat5, xmat6, xmat7, dims=3)
 xmat_func_arr = permutedims(xmat_func_arr, (3, 1, 2))
 
-print("xmat_func_arr shape: ", size(xmat_func_arr))
+# print("xmat_func_arr shape: ", size(xmat_func_arr))
 
 
 h_vec_batched = ones(6, batch_size)
@@ -138,7 +138,7 @@ h_mxS_output_batched = zeros(6, batch_size)
 # Now repeat along the fourth dimension only
 h_xmat_func_arr_batched = repeat(xmat_func_arr, outer=[1, 1, 1, batch_size])
 
-print("h_xmat_func_arr_batched shape: ", size(h_xmat_func_arr_batched))
+# print("h_xmat_func_arr_batched shape: ", size(h_xmat_func_arr_batched))
 
 
 h_S_arr_batched = repeat(S_arr, outer=[1, 1, batch_size])
@@ -146,18 +146,18 @@ h_Imat_arr_batched = repeat(Imat_arr, outer=[1, 1, 1, batch_size])
 h_q_batched = repeat(reshape(q, :, 1), outer=[1, batch_size])
 h_qd_batched = repeat(reshape(qd, :, 1), outer=[1, batch_size])
 
-print("h_S_arr_batched shape: ", size(h_S_arr_batched), "\n")
-print("h_Imat_arr_batched shape: ", size(h_Imat_arr_batched), "\n")
-print("h_q_batched shape: ", size(h_q_batched), "\n")
-print("h_qd_batched shape: ", size(h_qd_batched), "\n")
+# print("h_S_arr_batched shape: ", size(h_S_arr_batched), "\n")
+# print("h_Imat_arr_batched shape: ", size(h_Imat_arr_batched), "\n")
+# print("h_q_batched shape: ", size(h_q_batched), "\n")
+# print("h_qd_batched shape: ", size(h_qd_batched), "\n")
 
 h_crOp_output_batched = zeros(6, 6, batch_size)
 h_mxS_output_batched = zeros(6, batch_size)
 h_vxIv_output_batched = zeros(6, batch_size)
 
-print("h_crOp_output_batched shape: ", size(h_crOp_output_batched), "\n")
-print("h_mxS_output_batched shape: ", size(h_mxS_output_batched), "\n")
-print("h_vxIv_output_batched shape: ", size(h_vxIv_output_batched), "\n")
+# print("h_crOp_output_batched shape: ", size(h_crOp_output_batched), "\n")
+# print("h_mxS_output_batched shape: ", size(h_mxS_output_batched), "\n")
+# print("h_vxIv_output_batched shape: ", size(h_vxIv_output_batched), "\n")
 
 #########
 
@@ -193,14 +193,13 @@ function benchmark_cross_operator(batch_size, alpha, repetitions)
     h_output_batched = zeros(Float64, 6, 6, batch_size)
 
     cross_operator_batched(h_vec_batched, h_output_batched)
-    println("Cross operator output shape: ", size(h_output_batched))
 
     start_time = time()
     for i in 1:repetitions
         cross_operator_batched(h_vec_batched, h_output_batched)
     end
     elapsed_time = time() - start_time
-    println("Benchmark time for $repetitions repetitions: $elapsed_time seconds")
+    println("Benchmark time for cross operator for $repetitions repetitions: $elapsed_time seconds")
 end
 
 function mxS(S, vec, vec_output, mxS_output, alpha=1)
@@ -230,7 +229,7 @@ function benchmark_mxS(batch_size, alpha, repetitions)
     end_time = time()
 
     elapsed_time = end_time - start_time
-    println("Benchmark time for $repetitions repetitions: $elapsed_time seconds")
+    println("Benchmark time for mxS for $repetitions repetitions: $elapsed_time seconds")
 end
 
 function vxIv(vec, Imat, res, batch_size)
@@ -267,16 +266,15 @@ function benchmark_vxIv(batch_size, alpha, repetitions)
     h_I_batched = ones(Float64, 6, 6, batch_size)
     h_output_batched = zeros(Float64, 6, batch_size)
 
-    # CPU/with numpy
-    @time vxIv(h_vec_batched, h_I_batched, h_output_batched, batch_size) # warm-up once
-    println("vxIV shape: ", size(h_output_batched))
-    # testing in loop of 100
-    startnext = time()
+    start_time = time()
     for i in 1:repetitions
         vxIv(h_vec_batched, h_I_batched, h_output_batched, batch_size)
     end
-    elapsed_time = time() - startnext
-    println("Benchmark time for $repetitions repetitions: $elapsed_time seconds")
+    end_time = time()
+
+    elapsed_time = end_time - start_time
+
+    println("Benchmark time for vxIv for $repetitions repetitions: $elapsed_time seconds")
 
 end
 
@@ -352,14 +350,19 @@ function rnea_fpass(num_joints, parent_id_arr, xmat_func_arr, S_arr, Imat_arr, c
 end
 
 function benchmark_rnea_fpass(n, parent_id_arr, xmat_func_arr, S_arr, Imat_arr, crOp_output, mxS_output, vxIv_output, batch_size, q, qd, itr, qdd=nothing, GRAVITY=-9.81)
-    v, a, f = rnea_fpass(n, parent_id_arr, xmat_func_arr, S_arr, Imat_arr, crOp_output, mxS_output, vxIv_output, batch_size, q, qd, qdd, GRAVITY)
+    v, a, f = rnea_fpass(n, parent_id_arr, xmat_func_arr, S_arr, Imat_arr, crOp_output, mxS_output, vxIv_output, batch_size, q, qd, qdd, GRAVITY)        
 
-    elapsed_time = @elapsed for i in 1:itr
+    start_time = time()
+    for i in 1:itr
         rnea_fpass(n, parent_id_arr, xmat_func_arr, S_arr, Imat_arr, crOp_output, mxS_output, vxIv_output, batch_size, q, qd, qdd, GRAVITY)
     end
+    end_time = time()
 
-    println("CPU batched fpass with Julia: $elapsed_time seconds")
+    elapsed_time = end_time - start_time
+
+    println("Benchmark time for RNEA forward pass for $itr repetitions: $elapsed_time seconds")
 end
+
 
 function rnea_bpass(S_arr, parent_id_arr, xmat_func_arr, q, qd, f; USE_VELOCITY_DAMPING=false)
     # Allocate memory
@@ -367,21 +370,15 @@ function rnea_bpass(S_arr, parent_id_arr, xmat_func_arr, q, qd, f; USE_VELOCITY_
     n = size(q, 1)
     c = zeros(n, size(f, 3))
 
-    print("n length", n, "\n")
-
     # Backward pass
     for ind in n:-1:1
-        #S = S_arr[:, :, ind]
-        print("ind is", ind, "\n")
-        print("size of S_arr", size(S_arr), "\n")
+        # print("ind is", ind, "\n")
+        # print("size of S_arr", size(S_arr), "\n")
         S = S_arr[ind, :, :]
-        #c[ind, :] = sum(S .* f[:, ind, :], dims=1)
-        print("size of S", size(S), "\n")
-        print("size of f", size(f), "\n")
 
-        #c[ind, :] = sum(reshape(S, size(S)..., 1) .* f[:, ind, :], dims=2)
+        # print("size of S", size(S), "\n")
+        # print("size of f", size(f), "\n")
 
-        #c[ind, :] = sum(S .* f[:, ind, :], dims=2)
         for j in 1:size(f, 3)
             c[ind, j] = sum(S[:, j] .* f[:, ind, j])
         end
@@ -391,66 +388,43 @@ function rnea_bpass(S_arr, parent_id_arr, xmat_func_arr, q, qd, f; USE_VELOCITY_
             #Xmat = xmat_func_arr[ind, :, :]
             Xmat = xmat_func_arr[ind, :, :, :]
 
-            print("size of Xmat", size(Xmat), "\n")
-            print("size of f", size(f), "\n")
+            # print("size of Xmat", size(Xmat), "\n")
+            # print("size of f", size(f), "\n")
 
             temp = sum(Xmat .* reshape(f[:, ind, :], size(f, 1), 1, size(f, 3)), dims=1)
             f[:, parent_ind, :] .+= dropdims(temp, dims=1)
-
-            # temp = sum(Xmat .* f[:, ind, :], dims=2)
-            # f[:, parent_ind, :] .+= temp
         end
     end
 
     return c, f
 end
 
-# function benchmark_rnea_bpass(h_S_arr_batched, parent_id_arr, h_xmat_func_arr_batched, h_q_batched, h_qd_batched, n, xmat_func_arr, S_arr, Imat_arr, crOp_output, mxS_output, vxIv_output, batch_size, q, qd, itr, USE_VELOCITY_DAMPING = false, qdd=nothing, GRAVITY=-9.81)
-#     # For reference, batch_size is 10000 above
-#     itr = 100
-
-#     # First run Numpy fpass
-#     v, a, f = rnea_fpass(n, parent_id_arr, xmat_func_arr, S_arr, Imat_arr, crOp_output, mxS_output, vxIv_output, batch_size, q, qd, qdd, GRAVITY)
-#     print("f is", f, "\n")
-
-#     # Warm-up once
-#     c, f = rnea_bpass(h_S_arr_batched, parent_id_arr, h_xmat_func_arr_batched, h_q_batched, h_qd_batched, f, USE_VELOCITY_DAMPING = false)
-
-#     startnext = time()
-#     for i in 1:itr
-#         rnea_bpass(h_S_arr_batched, parent_id_arr, h_xmat_func_arr_batched, h_q_batched, h_qd_batched, f, USE_VELOCITY_DAMPING = false)
-#     end
-#     println("GPU Batched bpass with numpy: ", time() - startnext)
-# end
 
 function benchmark_rnea_bpass(n, parent_id_arr, xmat_func_arr, S_arr, Imat_arr, crOp_output, mxS_output, vxIv_output, batch_size, q, qd, itr, qdd=nothing, USE_VELOCITY_DAMPING = false, GRAVITY=-9.81)
-    # For reference, batch_size is 10000 above
-    itr = 100
-
-    # First run Numpy fpass
+    # First run fpass
     v, a, f = rnea_fpass(n, parent_id_arr, xmat_func_arr, S_arr, Imat_arr, crOp_output, mxS_output, vxIv_output, batch_size, q, qd, qdd, GRAVITY)
 
     # Warm-up once
     c, f = rnea_bpass(S_arr, parent_id_arr, xmat_func_arr, q, qd, f, USE_VELOCITY_DAMPING = false)
 
-    startnext = time()
+    start_time = time()
     for i in 1:itr
         rnea_bpass(S_arr, parent_id_arr, xmat_func_arr, q, qd, f, USE_VELOCITY_DAMPING = false)
     end
-    println("GPU Batched bpass with numpy: ", time() - startnext)
+    end_time = time()
+
+    elapsed_time = end_time - start_time
+
+    println("Benchmark time for RNEA backwards pass for $itr repetitions: $elapsed_time seconds")
 end
 
 function main()
     alpha = 0.1
     repetitions = 100
-    #benchmark_cross_operator(batch_size, alpha, repetitions)
-    #benchmark_mxS(batch_size, alpha, repetitions)
-    #benchmark_vxIv(batch_size, alpha, repetitions)
-    #benchmark_rnea_fpass(n, parent_id_arr, h_xmat_func_arr_batched, h_S_arr_batched, h_Imat_arr_batched, h_crOp_output_batched, h_mxS_output_batched, h_vxIv_output_batched, batch_size, h_q_batched, h_qd_batched, 100)
-    #benchmark_cross_operator(batch_size, alpha, repetitions)
-    #benchmark_mxS(batch_size, alpha, repetitions)
-    #benchmark_vxIv(batch_size, alpha, repetitions)
-    print("h_S_arr_batched size", size(h_S_arr_batched), "\n")
+    benchmark_cross_operator(batch_size, alpha, repetitions)
+    benchmark_mxS(batch_size, alpha, repetitions)
+    benchmark_vxIv(batch_size, alpha, repetitions)
+    benchmark_rnea_fpass(n, parent_id_arr, h_xmat_func_arr_batched, h_S_arr_batched, h_Imat_arr_batched, h_crOp_output_batched, h_mxS_output_batched, h_vxIv_output_batched, batch_size, h_q_batched, h_qd_batched, repetitions)
     benchmark_rnea_bpass(n, parent_id_arr, h_xmat_func_arr_batched, h_S_arr_batched, h_Imat_arr_batched, h_crOp_output_batched, h_mxS_output_batched, h_vxIv_output_batched, batch_size, h_q_batched, h_qd_batched, repetitions)
 
 end
