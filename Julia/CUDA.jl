@@ -113,13 +113,19 @@ end
 
 sizes_matmul = [100, 300, 500, 700, 900, 1300, 2000, 4000, 6000, 8000]
 
-# julia_times_matmul = [time_matmul_julia(size) for size in sizes_matmul]
+println("sizes_matmul: ", sizes_matmul)
+
+julia_times_matmul = [time_matmul_julia(size) for size in sizes_matmul]
+print("julia_times_matmuml: ", julia_times_matmul)
 
 # for (i, size) in enumerate(sizes_matmul)
 #     println("Matrix size: $size x $size, Time taken for matrix multiplication Julia: $(julia_times_matmul[i]) seconds")
 # end
 
-# cuda_times_matmul = [time_matmul_cuda(size) for size in sizes_matmul]
+cuda_times_matmul = [time_matmul_cuda(size) for size in sizes_matmul]
+print("cuda_times_matmuml: ", cuda_times_matmul)
+
+
 
 # for (i, size) in enumerate(sizes_matmul)
 #     println("Matrix size: $size x $size, Time taken for matrix multiplication CUDA: $(cuda_times_matmul[i]) seconds")
@@ -128,32 +134,40 @@ sizes_matmul = [100, 300, 500, 700, 900, 1300, 2000, 4000, 6000, 8000]
 
 ##now do dot product
 
-sizes_dot = [1000, 10000, 1_000_000, 2_000_000, 4_000_000, 6_000_000, 8_000_000, 10_000_000,
-         12_000_000, 14_000_000, 16_000_000, 18_000_000, 20_000_000]
+# sizes_dot = [1000, 10000, 1_000_000, 2_000_000, 4_000_000, 6_000_000, 8_000_000, 10_000_000,
+#          12_000_000, 14_000_000, 16_000_000, 18_000_000, 20_000_000]
 
-julia_times_dot = [time_dot_product_julia(size) for size in sizes_dot]
+# julia_times_dot = [time_dot_product_julia(size) for size in sizes_dot]
 
-for (i, size) in enumerate(sizes_dot)
-    println("Vector size: $size, Time taken for dot product Julia: $(julia_times_dot[i]) seconds")
-end
+# println("sizes dot: ", sizes_dot)
+# println("julia_times_dot: " julia_times_dot)
 
-cuda_times_dot = [time_dot_product_cuda(size) for size in sizes_dot]
+# for (i, size) in enumerate(sizes_dot)
+#     println("Vector size: $size, Time taken for dot product Julia: $(julia_times_dot[i]) seconds")
+# end
 
-for (i, size) in enumerate(sizes_dot)
-    println("Vector size: $size, Time taken for dot product CUDA: $(cuda_times_dot[i]) seconds")
-end
+# cuda_times_dot = [time_dot_product_cuda(size) for size in sizes_dot]
+
+
+# for (i, size) in enumerate(sizes_dot)
+#     println("Vector size: $size, Time taken for dot product CUDA: $(cuda_times_dot[i]) seconds")
+# end
 
 
 sizes_inversion = [200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000, 2500, 4000, 7000, 10000]
 
-# julia_times_inversion = [time_matrix_inversion_julia(size) for size in sizes_inversion]
+println("sizes_inversion: ", sizes_inversion)
+
+julia_times_inversion = [time_matrix_inversion_julia(size) for size in sizes_inversion]
+println("julia_times_inversion", julia_times_inversion)
 
 # for (i, size) in enumerate(sizes_dot)
 #     println("Vector size: $size, Time taken for matrix inversion Julia: $(julia_times_inversion[i]) seconds")
 # end
 
+cuda_times_inversion = [time_matrix_inversion_cuda(size) for size in sizes_inversion]
 
-# cuda_times_inversion = [time_matrix_inversion_cuda(size) for size in sizes_inversion]
+println("cuda_times_inversion", cuda_times_inversion)
 
 # for (i, size) in enumerate(sizes_dot)
 #     println("Vector size: $size, Time taken for matrix inversion Julia: $(cuda_times_inversion[i]) seconds")
