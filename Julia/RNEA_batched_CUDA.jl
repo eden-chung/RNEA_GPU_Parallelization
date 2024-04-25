@@ -1,6 +1,6 @@
 using CUDA
 
-batch_size = 1000
+batch_size = 10000
 
 q = [-0.3369  1.2966 -0.6775 -1.4218 -0.7067 -0.135  -1.1495]
 qd = [ 0.433  -0.4216 -0.6454 -1.8605 -0.0131 -0.4583  0.7412]
@@ -262,13 +262,15 @@ end
 
 
 function benchmark_mxS(batch_size, alpha, repetitions)
+    start_time = time()
+
     h_vec_batched = ones(6, batch_size)
     h_s_vec_batched = repeat(ones(6, 1), 1, 1, batch_size)
     h_output_batched = zeros(6, 6, batch_size)
     h_mxS_output_batched = zeros(6, batch_size)
 
     # Timing
-    start_time = time()
+    
     for i in 1:repetitions
         mxS(h_s_vec_batched, h_vec_batched, h_output_batched, h_mxS_output_batched, alpha)
     end
@@ -466,7 +468,13 @@ end
 
 function main()
     alpha = 0.1
-    repetitions = 100
+    repetitions = 1000
+
+    #a random dummy operator just to start us up
+    benchmark_cross_operator(batch_size, alpha, repetitions)
+
+    #now these are the real values here
+    println("benchmarks:")
     benchmark_cross_operator(batch_size, alpha, repetitions)
     benchmark_mxS(batch_size, alpha, repetitions)
     #benchmark_vxIv(batch_size, alpha, repetitions)
