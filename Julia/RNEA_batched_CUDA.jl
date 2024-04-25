@@ -1,10 +1,3 @@
-
-using Pkg
-Pkg.add("CUDA")
-
-using CUDA
-CUDA.versioninfo()
-
 using CUDA
 
 batch_size = 1000
@@ -175,7 +168,7 @@ using LinearAlgebra
 #cross operator
 using CUDA
 
-function cross_operator_batched_parallel(d_vec::CuArray{Float64}, d_output::CuArray{Float64})
+function cross_operator_batched_parallel(d_vec::CuDeviceMatrix{Float64, 1}, d_output::CuDeviceArray{Float64, 3, 1})
     idx = threadIdx().x
     stride = blockDim().x
     for k in idx:stride:size(d_vec, 2)
@@ -202,21 +195,42 @@ function cross_operator_batched_parallel(d_vec::CuArray{Float64}, d_output::CuAr
     return
 end
 
+# function benchmark_cross_operator(batch_size, alpha, repetitions)
+#     h_vec_batched = ones(Float64, 6, batch_size)
+#     h_output_batched = similar(h_vec_batched)
+
+#     # Move data to GPU
+#     d_vec_batched = CuArray(h_vec_batched)
+#     d_output_batched = CuArray(h_output_batched)
+
+#     # Warm-up run
+#     cross_operator_batched_parallel(d_vec_batched, d_output_batched)
+
+#     # Measure performance
+#     start_time = time()
+#     for i in 1:repetitions
+#         cross_operator_batched_parallel(d_vec_batched, d_output_batched)
+#     end
+#     elapsed_time = time() - start_time
+#     println("Benchmark time for cross operator for $repetitions repetitions: $elapsed_time seconds")
+# end
+
 function benchmark_cross_operator(batch_size, alpha, repetitions)
     h_vec_batched = ones(Float64, 6, batch_size)
-    h_output_batched = similar(h_vec_batched)
+    h_output_batched = zeros(Float64, 6, 6, batch_size)  # Assuming output is 6x6xN based on your cross_operator indexing
+
+    start_time = time()
 
     # Move data to GPU
     d_vec_batched = CuArray(h_vec_batched)
     d_output_batched = CuArray(h_output_batched)
 
     # Warm-up run
-    cross_operator_batched_parallel(d_vec_batched, d_output_batched)
+    @cuda threads=256 blocks=(batch_size + 255) ÷ 256 cross_operator_batched_parallel(d_vec_batched, d_output_batched)
 
     # Measure performance
-    start_time = time()
     for i in 1:repetitions
-        cross_operator_batched_parallel(d_vec_batched, d_output_batched)
+        @cuda threads=256 blocks=(batch_size + 255) ÷ 256 cross_operator_batched_parallel(d_vec_batched, d_output_batched)
     end
     elapsed_time = time() - start_time
     println("Benchmark time for cross operator for $repetitions repetitions: $elapsed_time seconds")
@@ -225,15 +239,24 @@ end
 
 
 function mxS(S, vec, vec_output, mxS_output, alpha=1)
-    #print("dimensions of S", size(S), "\n")
-    cross_operator_batched(vec, vec_output)
-    for i in 1:size(vec_output, 3)
-        if ndims(S) == 3
-            mxS_output[:, i] .= alpha * (vec_output[:, :, i] * S[:, :, i])
+    S_gpu = CUDA.cu(S)
+    vec_gpu = CUDA.cu(vec)h_output_batched
+    vec_output_gpu = CUDA.cu(vec_output)
+    mxS_output_gpu = CUDA.cu(mxS_output)
+    
+    cross_operator_batched_parallel(vec_gpu, vec_output_gpu)
+
+    batch_size = size(vec_output_gpu, 3)
+
+    for i in 1:batch_size
+        if ndims(S_gpu) == 3
+            @. mxS_output_gpu[:, i] = alpha * (vec_output_gpu[:, :, i] * S_gpu[:, :, i])
         else
-            mxS_output[:, i] .= alpha * (vec_output[:, :, i] * S[:, i])
+            @. mxS_output_gpu[:, i] = alpha * (vec_output_gpu[:, :, i] * S_gpu[:, i])
         end
     end
+    
+    mxS_output .= Array(mxS_output_gpu)
 end
 
 
@@ -442,12 +465,12 @@ end
 
 function main()
     alpha = 0.1
-    repetitions = 1000
+    repetitions = 100
     benchmark_cross_operator(batch_size, alpha, repetitions)
-    benchmark_mxS(batch_size, alpha, repetitions)
-    benchmark_vxIv(batch_size, alpha, repetitions)
-    benchmark_rnea_fpass(n, parent_id_arr, h_xmat_func_arr_batched, h_S_arr_batched, h_Imat_arr_batched, h_crOp_output_batched, h_mxS_output_batched, h_vxIv_output_batched, batch_size, h_q_batched, h_qd_batched, repetitions)
-    benchmark_rnea_bpass(n, parent_id_arr, h_xmat_func_arr_batched, h_S_arr_batched, h_Imat_arr_batched, h_crOp_output_batched, h_mxS_output_batched, h_vxIv_output_batched, batch_size, h_q_batched, h_qd_batched, repetitions)
+    #benchmark_mxS(batch_size, alpha, repetitions)
+    #benchmark_vxIv(batch_size, alpha, repetitions)
+    #benchmark_rnea_fpass(n, parent_id_arr, h_xmat_func_arr_batched, h_S_arr_batched, h_Imat_arr_batched, h_crOp_output_batched, h_mxS_output_batched, h_vxIv_output_batched, batch_size, h_q_batched, h_qd_batched, repetitions)
+    #benchmark_rnea_bpass(n, parent_id_arr, h_xmat_func_arr_batched, h_S_arr_batched, h_Imat_arr_batched, h_crOp_output_batched, h_mxS_output_batched, h_vxIv_output_batched, batch_size, h_q_batched, h_qd_batched, repetitions)
 
 end
 
