@@ -21,3 +21,18 @@ Matrix size: 2000 x 2000, GPU Time taken: 0.008219328 seconds
 Matrix size: 4000 x 4000, GPU Time taken: 0.06722493 seconds
 Matrix size: 6000 x 6000, GPU Time taken: 0.21636927 seconds
 Matrix size: 8000 x 8000, GPU Time taken: 0.5181641 seconds
+
+
+1 device:
+  0: NVIDIA GeForce RTX 2080 (sm_75, 7.774 GiB / 8.000 GiB available)
+Matrix size: 100 x 100, GPU Time taken: 9.0559995e-5 seconds
+Matrix size: 300 x 300, GPU Time taken: 5.9039998e-5 seconds
+Matrix size: 500 x 500, GPU Time taken: 7.6640004e-5 seconds
+Matrix size: 700 x 700, GPU Time taken: 0.00047814398 seconds
+Matrix size: 900 x 900, GPU Time taken: 0.000305888 seconds
+Matrix size: 1300 x 1300, GPU Time taken: 0.000713728 seconds
+Matrix size: 2000 x 2000, GPU Time taken: 0.0022975681 seconds
+Matrix size: 4000 x 4000, GPU Time taken: 0.015706336 seconds
+Matrix size: 6000 x 6000, GPU Time taken: 0.052390173 seconds
+Matrix size: 8000 x 8000, GPU Time taken: 0.11136576 seconds
+
