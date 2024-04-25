@@ -1,10 +1,9 @@
-using Pkg
-Pkg.add("CUDA")
+#using Pkg
+#Pkg.add("CUDA")
 
-using CUDA
-CUDA.versioninfo()
+using CUDA, LinearAlgebra
+#CUDA.versioninfo()
 
-using CUDA
 
 function time_matmul_cuda(size)
     # Ensure that CUDA is available
@@ -28,29 +27,74 @@ function time_matmul_cuda(size)
     return start_time  # Time in seconds
 end
 
-sizes = [100, 300, 500, 700, 900, 1300, 2000, 4000, 6000, 8000]
-cuda_times = [time_matmul_cuda(size) for size in sizes]
 
-# Print the results
-for (i, size) in enumerate(sizes)
-    println("Matrix size: $size x $size, GPU Time taken: $(cuda_times[i]) seconds")
+function time_matmul_julia(size)
+    A = rand(size, size)
+    B = rand(size, size)
+    start_time = time()  # Capture the start time
+    C = A * B # Perform matrix multiplication
+    end_time = time()  # Capture the end time
+    return end_time - start_time  # Calculate the elapsed time
+end
+
+
+function time_dot_product_julia(size)
+    A = rand(size)
+    B = rand(size)
+
+    start_time = time()
+    C = dot(A, B)
+    end_time = time()
+    return end_time - start_time
+end
+
+function time_dot_product_cuda(size)
+    if !CUDA.functional()
+        error("CUDA is not available or your GPU is not supported.")
+    end
+    
+    A_gpu = CUDA.rand(size)
+    B_gpu = CUDA.rand(size)
+
+    CUDA.@sync dot(A_gpu, B_gpu)
+
+    start_time = CUDA.@elapsed begin
+        C_gpu = dot(A_gpu, B_gpu)
+        CUDA.synchronize()  # Ensure the multiplication is complete
+    end
+
+    return start_time
 end
 
 
 
-# function time_matmul_julia(size)
-#     A = rand(size, size)
-#     B = rand(size, size)
-#     start_time = time()  # Capture the start time
-#     C = A * B  # Perform matrix multiplication
-#     end_time = time()  # Capture the end time
-#     return end_time - start_time  # Calculate the elapsed time
-# end
+sizes_matmul = [100, 300, 500, 700, 900, 1300, 2000, 4000, 6000, 8000]
+julia_times_matmul = [time_matmul_julia(size) for size in sizes_matmul]
+cuda_times_matmul = [time_matmul_cuda(size) for size in sizes_matmul]
 
-# sizes = [100, 300, 500, 700, 900, 1300, 2000, 4000, 6000, 8000]
-# julia_times = [time_matmul_julia(size) for size in sizes]
+# Print the results
+for (i, size) in enumerate(sizes_matmul)
+    println("Matrix size: $size x $size, Time taken for matrix multiplication Julia: $(julia_times_matmul[i]) seconds")
+end
 
-# # Print the results
-# for (i, size) in enumerate(sizes)
-#     println("Matrix size: $size x $size, Time taken: $(julia_times[i]) seconds")
-# end
+for (i, size) in enumerate(sizes_matmul)
+    println("Matrix size: $size x $size, Time taken for matrix multiplication CUDA: $(cuda_times_matmul[i]) seconds")
+end
+
+
+##now do dot product
+
+sizes_dot = [1000, 10000, 1_000_000, 2_000_000, 4_000_000, 6_000_000, 8_000_000, 10_000_000,
+         12_000_000, 14_000_000, 16_000_000, 18_000_000, 20_000_000]
+
+julia_times_dot = [time_dot_product_julia(size) for size in sizes_dot]
+cuda_times_dot = [time_dot_product_cuda(size) for size in sizes_dot]
+
+
+for (i, size) in enumerate(sizes_dot)
+    println("Vector size: $size, Time taken for dot product Julia: $(julia_times_dot[i]) seconds")
+end
+
+for (i, size) in enumerate(sizes_dot)
+    println("Vector size: $size, Time taken for dot product CUDA: $(cuda_times_dot[i]) seconds")
+end
