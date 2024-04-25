@@ -229,7 +229,6 @@ function benchmark_cross_operator(batch_size, alpha, repetitions)
     @cuda threads=256 blocks=(batch_size + 255) ÷ 256 cross_operator_batched_parallel(d_vec_batched, d_output_batched)
 
     # Measure performance
-    
     for i in 1:repetitions
         @cuda threads=256 blocks=(batch_size + 255) ÷ 256 cross_operator_batched_parallel(d_vec_batched, d_output_batched)
     end
@@ -241,7 +240,7 @@ end
 
 function mxS(S, vec, vec_output, mxS_output, alpha=1)
     S_gpu = CUDA.cu(S)
-    vec_gpu = CUDA.cu(vec)
+    vec_gpu = CUDA.cu(vec)h_output_batched
     vec_output_gpu = CUDA.cu(vec_output)
     mxS_output_gpu = CUDA.cu(mxS_output)
     
@@ -466,7 +465,7 @@ end
 
 function main()
     alpha = 0.1
-    repetitions = 1000
+    repetitions = 100
     benchmark_cross_operator(batch_size, alpha, repetitions)
     #benchmark_mxS(batch_size, alpha, repetitions)
     #benchmark_vxIv(batch_size, alpha, repetitions)
