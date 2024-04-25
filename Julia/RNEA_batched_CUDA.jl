@@ -1,6 +1,6 @@
 using CUDA
 
-batch_size = 1000
+batch_size = 10000
 
 q = [-0.3369  1.2966 -0.6775 -1.4218 -0.7067 -0.135  -1.1495]
 qd = [ 0.433  -0.4216 -0.6454 -1.8605 -0.0131 -0.4583  0.7412]
@@ -220,7 +220,7 @@ function benchmark_cross_operator(batch_size, alpha, repetitions)
     h_output_batched = zeros(Float64, 6, 6, batch_size)  # Assuming output is 6x6xN based on your cross_operator indexing
 
     start_time = time()
-
+    
     # Move data to GPU
     d_vec_batched = CuArray(h_vec_batched)
     d_output_batched = CuArray(h_output_batched)
@@ -240,34 +240,37 @@ end
 
 function mxS(S, vec, vec_output, mxS_output, alpha=1)
     S_gpu = CUDA.cu(S)
-    vec_gpu = CUDA.cu(vec)h_output_batched
+    vec_gpu = CUDA.cu(vec)
     vec_output_gpu = CUDA.cu(vec_output)
     mxS_output_gpu = CUDA.cu(mxS_output)
+
+    vec_gpu = CuArray(vec)
+    vec_output_gpu = CuArray(vec_output)
     
-    cross_operator_batched_parallel(vec_gpu, vec_output_gpu)
+    @cuda threads=256 blocks=256 cross_operator_batched_parallel(vec_gpu, vec_output_gpu)
 
     batch_size = size(vec_output_gpu, 3)
 
-    for i in 1:batch_size
-        if ndims(S_gpu) == 3
-            @. mxS_output_gpu[:, i] = alpha * (vec_output_gpu[:, :, i] * S_gpu[:, :, i])
+    for i in 1:size(vec_output, 3)
+        if ndims(S) == 3
+            mxS_output[:, i] .= alpha * (vec_output[:, :, i] * S[:, :, i])
         else
-            @. mxS_output_gpu[:, i] = alpha * (vec_output_gpu[:, :, i] * S_gpu[:, i])
+            mxS_output[:, i] .= alpha * (vec_output[:, :, i] * S[:, i])
         end
     end
-    
-    mxS_output .= Array(mxS_output_gpu)
 end
 
 
 function benchmark_mxS(batch_size, alpha, repetitions)
+    start_time = time()
+
     h_vec_batched = ones(6, batch_size)
     h_s_vec_batched = repeat(ones(6, 1), 1, 1, batch_size)
     h_output_batched = zeros(6, 6, batch_size)
     h_mxS_output_batched = zeros(6, batch_size)
 
     # Timing
-    start_time = time()
+    
     for i in 1:repetitions
         mxS(h_s_vec_batched, h_vec_batched, h_output_batched, h_mxS_output_batched, alpha)
     end
@@ -477,10 +480,18 @@ end
 
 function main()
     alpha = 0.1
-    repetitions = 100
+    repetitions = 1000
+
+    #a random dummy operator just to start us up
     benchmark_cross_operator(batch_size, alpha, repetitions)
     #benchmark_mxS(batch_size, alpha, repetitions)
     benchmark_vxIv(batch_size, alpha, repetitions)
+
+    #now these are the real values here
+    println("benchmarks:")
+    benchmark_cross_operator(batch_size, alpha, repetitions)
+    benchmark_mxS(batch_size, alpha, repetitions)
+    #benchmark_vxIv(batch_size, alpha, repetitions)
     #benchmark_rnea_fpass(n, parent_id_arr, h_xmat_func_arr_batched, h_S_arr_batched, h_Imat_arr_batched, h_crOp_output_batched, h_mxS_output_batched, h_vxIv_output_batched, batch_size, h_q_batched, h_qd_batched, repetitions)
     #benchmark_rnea_bpass(n, parent_id_arr, h_xmat_func_arr_batched, h_S_arr_batched, h_Imat_arr_batched, h_crOp_output_batched, h_mxS_output_batched, h_vxIv_output_batched, batch_size, h_q_batched, h_qd_batched, repetitions)
 
