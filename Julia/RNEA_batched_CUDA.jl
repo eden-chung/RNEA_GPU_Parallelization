@@ -168,9 +168,7 @@ using LinearAlgebra
 #cross operator
 using CUDA
 
-println("test")
-
-function cross_operator_batched_parallel(d_vec::CuArray{Float64}, d_output::CuArray{Float64})
+function cross_operator_batched_parallel(d_vec::CuDeviceMatrix{Float64, 1}, d_output::CuDeviceArray{Float64, 3, 1})
     idx = threadIdx().x
     stride = blockDim().x
     for k in idx:stride:size(d_vec, 2)
@@ -221,6 +219,8 @@ function benchmark_cross_operator(batch_size, alpha, repetitions)
     h_vec_batched = ones(Float64, 6, batch_size)
     h_output_batched = zeros(Float64, 6, 6, batch_size)  # Assuming output is 6x6xN based on your cross_operator indexing
 
+    start_time = time()
+    
     # Move data to GPU
     d_vec_batched = CuArray(h_vec_batched)
     d_output_batched = CuArray(h_output_batched)
@@ -229,7 +229,7 @@ function benchmark_cross_operator(batch_size, alpha, repetitions)
     @cuda threads=256 blocks=(batch_size + 255) ÷ 256 cross_operator_batched_parallel(d_vec_batched, d_output_batched)
 
     # Measure performance
-    start_time = time()
+    
     for i in 1:repetitions
         @cuda threads=256 blocks=(batch_size + 255) ÷ 256 cross_operator_batched_parallel(d_vec_batched, d_output_batched)
     end
