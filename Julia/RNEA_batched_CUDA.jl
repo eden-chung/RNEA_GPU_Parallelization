@@ -1,3 +1,12 @@
+
+using Pkg
+Pkg.add("CUDA")
+
+using CUDA
+CUDA.versioninfo()
+
+using CUDA
+
 batch_size = 1000
 
 q = [-0.3369  1.2966 -0.6775 -1.4218 -0.7067 -0.135  -1.1495]
@@ -164,8 +173,12 @@ h_vxIv_output_batched = zeros(6, batch_size)
 using LinearAlgebra
 
 #cross operator
-function cross_operator_batched(d_vec, d_output)
-    for k in 1:size(d_vec, 2)
+using CUDA
+
+function cross_operator_batched_parallel(d_vec::CuArray{Float64}, d_output::CuArray{Float64})
+    idx = threadIdx().x
+    stride = blockDim().x
+    for k in idx:stride:size(d_vec, 2)
         d_output[1, 2, k] = -d_vec[2, k]
         d_output[1, 3, k] = d_vec[1, k]
         d_output[2, 1, k] = d_vec[2, k]
@@ -186,21 +199,30 @@ function cross_operator_batched(d_vec, d_output)
         d_output[6, 4, k] = -d_vec[2, k]
         d_output[6, 5, k] = d_vec[1, k]
     end
+    return
 end
 
 function benchmark_cross_operator(batch_size, alpha, repetitions)
     h_vec_batched = ones(Float64, 6, batch_size)
-    h_output_batched = zeros(Float64, 6, 6, batch_size)
+    h_output_batched = similar(h_vec_batched)
 
-    cross_operator_batched(h_vec_batched, h_output_batched)
+    # Move data to GPU
+    d_vec_batched = CuArray(h_vec_batched)
+    d_output_batched = CuArray(h_output_batched)
 
+    # Warm-up run
+    cross_operator_batched_parallel(d_vec_batched, d_output_batched)
+
+    # Measure performance
     start_time = time()
     for i in 1:repetitions
-        cross_operator_batched(h_vec_batched, h_output_batched)
+        cross_operator_batched_parallel(d_vec_batched, d_output_batched)
     end
     elapsed_time = time() - start_time
     println("Benchmark time for cross operator for $repetitions repetitions: $elapsed_time seconds")
 end
+
+
 
 function mxS(S, vec, vec_output, mxS_output, alpha=1)
     S_gpu = CUDA.cu(S)
@@ -429,7 +451,7 @@ end
 
 function main()
     alpha = 0.1
-    repetitions = 100
+    repetitions = 1000
     benchmark_cross_operator(batch_size, alpha, repetitions)
     benchmark_mxS(batch_size, alpha, repetitions)
     benchmark_vxIv(batch_size, alpha, repetitions)
