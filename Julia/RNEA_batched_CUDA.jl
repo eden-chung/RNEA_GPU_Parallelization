@@ -240,23 +240,24 @@ end
 
 function mxS(S, vec, vec_output, mxS_output, alpha=1)
     S_gpu = CUDA.cu(S)
-    vec_gpu = CUDA.cu(vec)h_output_batched
+    vec_gpu = CUDA.cu(vec)
     vec_output_gpu = CUDA.cu(vec_output)
     mxS_output_gpu = CUDA.cu(mxS_output)
+
+    vec_gpu = CuArray(vec)
+    vec_output_gpu = CuArray(vec_output)
     
-    cross_operator_batched_parallel(vec_gpu, vec_output_gpu)
+    @cuda threads=256 blocks=256 cross_operator_batched_parallel(vec_gpu, vec_output_gpu)
 
     batch_size = size(vec_output_gpu, 3)
 
-    for i in 1:batch_size
-        if ndims(S_gpu) == 3
-            @. mxS_output_gpu[:, i] = alpha * (vec_output_gpu[:, :, i] * S_gpu[:, :, i])
+    for i in 1:size(vec_output, 3)
+        if ndims(S) == 3
+            mxS_output[:, i] .= alpha * (vec_output[:, :, i] * S[:, :, i])
         else
-            @. mxS_output_gpu[:, i] = alpha * (vec_output_gpu[:, :, i] * S_gpu[:, i])
+            mxS_output[:, i] .= alpha * (vec_output[:, :, i] * S[:, i])
         end
     end
-    
-    mxS_output .= Array(mxS_output_gpu)
 end
 
 
@@ -467,7 +468,7 @@ function main()
     alpha = 0.1
     repetitions = 100
     benchmark_cross_operator(batch_size, alpha, repetitions)
-    #benchmark_mxS(batch_size, alpha, repetitions)
+    benchmark_mxS(batch_size, alpha, repetitions)
     #benchmark_vxIv(batch_size, alpha, repetitions)
     #benchmark_rnea_fpass(n, parent_id_arr, h_xmat_func_arr_batched, h_S_arr_batched, h_Imat_arr_batched, h_crOp_output_batched, h_mxS_output_batched, h_vxIv_output_batched, batch_size, h_q_batched, h_qd_batched, repetitions)
     #benchmark_rnea_bpass(n, parent_id_arr, h_xmat_func_arr_batched, h_S_arr_batched, h_Imat_arr_batched, h_crOp_output_batched, h_mxS_output_batched, h_vxIv_output_batched, batch_size, h_q_batched, h_qd_batched, repetitions)
