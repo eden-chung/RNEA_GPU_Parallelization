@@ -203,15 +203,24 @@ function benchmark_cross_operator(batch_size, alpha, repetitions)
 end
 
 function mxS(S, vec, vec_output, mxS_output, alpha=1)
-    #print("dimensions of S", size(S), "\n")
-    cross_operator_batched(vec, vec_output)
-    for i in 1:size(vec_output, 3)
-        if ndims(S) == 3
-            mxS_output[:, i] .= alpha * (vec_output[:, :, i] * S[:, :, i])
+    S_gpu = CUDA.cu(S)
+    vec_gpu = CUDA.cu(vec)
+    vec_output_gpu = CUDA.cu(vec_output)
+    mxS_output_gpu = CUDA.cu(mxS_output)
+    
+    cross_operator_batched_gpu(vec_gpu, vec_output_gpu)
+
+    batch_size = size(vec_output_gpu, 3)
+
+    for i in 1:batch_size
+        if ndims(S_gpu) == 3
+            @. mxS_output_gpu[:, i] = alpha * (vec_output_gpu[:, :, i] * S_gpu[:, :, i])
         else
-            mxS_output[:, i] .= alpha * (vec_output[:, :, i] * S[:, i])
+            @. mxS_output_gpu[:, i] = alpha * (vec_output_gpu[:, :, i] * S_gpu[:, i])
         end
     end
+    
+    mxS_output .= Array(mxS_output_gpu)
 end
 
 
