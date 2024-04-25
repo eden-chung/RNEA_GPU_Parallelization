@@ -277,51 +277,63 @@ function benchmark_mxS(batch_size, alpha, repetitions)
     println("Benchmark time for mxS for $repetitions repetitions: $elapsed_time seconds")
 end
 
-function vxIv(vec, Imat, res, batch_size)
-    #print("parent_id_arr", parent_id_arr, "\n")
-    #print("vec is: ", size(vec), "\n")
-    temp = sum(Imat .* vec, dims=1)  # Element-wise multiplication and summation along the first dimension
+using CUDA
 
-    vecXIvec = zeros(Float64, 6, batch_size)
+function vxIv_kernel(vec_d, Imat_d, res_d)
+    idx = threadIdx().x + (blockIdx().x - 1) * blockDim().x
 
-    for i in 1:batch_size
-        if ndims(vec) == 3
-            vecXIvec[1, i] = -vec[3, 1, i] * temp[1, 1, i] + vec[2, 1, i] * temp[1, 1, i] - vec[3+3, 1, i] * temp[1, 1, i] + vec[2+3, 1, i] * temp[1, 1, i]
-            vecXIvec[2, i] = vec[3, 1, i] * temp[1, 1, i] - vec[1, 1, i] * temp[1, 1, i] + vec[3+3, 1, i] * temp[1, 1, i] - vec[1+3, 1, i] * temp[1, 1, i]
-            vecXIvec[3, i] = -vec[2, 1, i] * temp[1, 1, i] + vec[1, 1, i] * temp[1, 1, i] - vec[2+3, 1, i] * temp[1, 1, i] + vec[1+3, 1, i] * temp[1, 1, i]
-            vecXIvec[4, i] = -vec[3, 1, i] * temp[1, 1, i] + vec[2, 1, i] * temp[1, 1, i]
-            vecXIvec[5, i] = vec[3, 1, i] * temp[1, 1, i] - vec[1, 1, i] * temp[1, 1, i]
-            vecXIvec[6, i] = -vec[2, 1, i] * temp[1, 1, i] + vec[1, 1, i] * temp[1, 1, i]
+    if idx <= size(vec_d, 3)
+        temp = sum(Imat_d .* vec_d[:, :, idx], dims=1)
+
+        if ndims(vec_d) == 3
+            res_d[1, idx] = -vec_d[3, 1, idx] * temp[1, 1] + vec_d[2, 1, idx] * temp[1, 1] - vec_d[3+3, 1, idx] * temp[1, 1] + vec_d[2+3, 1, idx] * temp[1, 1]
+            res_d[2, idx] = vec_d[3, 1, idx] * temp[1, 1] - vec_d[1, 1, idx] * temp[1, 1] + vec_d[3+3, 1, idx] * temp[1, 1] - vec_d[1+3, 1, idx] * temp[1, 1]
+            res_d[3, idx] = -vec_d[2, 1, idx] * temp[1, 1] + vec_d[1, 1, idx] * temp[1, 1] - vec_d[2+3, 1, idx] * temp[1, 1] + vec_d[1+3, 1, idx] * temp[1, 1]
+            res_d[4, idx] = -vec_d[3, 1, idx] * temp[1, 1] + vec_d[2, 1, idx] * temp[1, 1]
+            res_d[5, idx] = vec_d[3, 1, idx] * temp[1, 1] - vec_d[1, 1, idx] * temp[1, 1]
+            res_d[6, idx] = -vec_d[2, 1, idx] * temp[1, 1] + vec_d[1, 1, idx] * temp[1, 1]
         else
-            vecXIvec[1, i] = -vec[3, i] * temp[1, i] + vec[2, i] * temp[1, i] - vec[6, i] * temp[1, i] + vec[5, i] * temp[1, i]
-            vecXIvec[2, i] = vec[3, i] * temp[1, i] - vec[1, i] * temp[1, i] + vec[6, i] * temp[1, i] - vec[4, i] * temp[1, i]
-            vecXIvec[3, i] = -vec[2, i] * temp[1, i] + vec[1, i] * temp[1, i] - vec[5, i] * temp[1, i] + vec[4, i] * temp[1, i]
-            vecXIvec[4, i] = -vec[3, i] * temp[1, i] + vec[2, i] * temp[1, i]
-            vecXIvec[5, i] = vec[3, i] * temp[1, i] - vec[1, i] * temp[1, i]
-            vecXIvec[6, i] = -vec[2, i] * temp[1, i] + vec[1, i] * temp[1, i]
+            res_d[1, idx] = -vec_d[3, idx] * temp[1, 1] + vec_d[2, idx] * temp[1, 1] - vec_d[6, idx] * temp[1, 1] + vec_d[5, idx] * temp[1, 1]
+            res_d[2, idx] = vec_d[3, idx] * temp[1, 1] - vec_d[1, idx] * temp[1, 1] + vec_d[6, idx] * temp[1, 1] - vec_d[4, idx] * temp[1, 1]
+            res_d[3, idx] = -vec_d[2, idx] * temp[1, 1] + vec_d[1, idx] * temp[1, 1] - vec_d[5, idx] * temp[1, 1] + vec_d[4, idx] * temp[1, 1]
+            res_d[4, idx] = -vec_d[3, idx] * temp[1, 1] + vec_d[2, idx] * temp[1, 1]
+            res_d[5, idx] = vec_d[3, idx] * temp[1, 1] - vec_d[1, idx] * temp[1, 1]
+            res_d[6, idx] = -vec_d[2, idx] * temp[1, 1] + vec_d[1, idx] * temp[1, 1]
         end
     end
-
-    res .= vecXIvec
+    
+    return nothing
 end
 
 function benchmark_vxIv(batch_size, alpha, repetitions)
     # COMPARING to batched
-    h_vec_batched = vec = ones(Float64, 6, 1, batch_size)#ones(Float64, 6, batch_size)
+    h_vec_batched = vec = ones(Float64, 6, 1, batch_size)  # ones(Float64, 6, batch_size)
     h_I_batched = ones(Float64, 6, 6, batch_size)
     h_output_batched = zeros(Float64, 6, batch_size)
 
+    # Transfer data to GPU
+    d_vec_batched = CUDA.to_device(h_vec_batched)
+    d_I_batched = CUDA.to_device(h_I_batched)
+    d_output_batched = CUDA.zeros(Float64, 6, batch_size)
+
+    # Launch kernel
+    threads_per_block = 256
+    blocks_per_grid = min(256, div(batch_size + threads_per_block - 1, threads_per_block))
+
     start_time = time()
     for i in 1:repetitions
-        vxIv(h_vec_batched, h_I_batched, h_output_batched, batch_size)
+        @cuda threads=threads_per_block blocks=blocks_per_grid vxIv_kernel(d_vec_batched, d_I_batched, d_output_batched)
     end
+    sync_threads()  # Ensure all threads have finished
+    
     end_time = time()
 
     elapsed_time = end_time - start_time
 
     println("Benchmark time for vxIv for $repetitions repetitions: $elapsed_time seconds")
-
 end
+
+
 
 function rnea_fpass(num_joints, parent_id_arr, xmat_func_arr, S_arr, Imat_arr, crOp_output, mxS_output, vxIv_output, batch_size, q, qd, qdd = nothing, GRAVITY = -9.81)
     #print("parent_id_arr", parent_id_arr, "\n")
@@ -468,7 +480,7 @@ function main()
     repetitions = 100
     benchmark_cross_operator(batch_size, alpha, repetitions)
     #benchmark_mxS(batch_size, alpha, repetitions)
-    #benchmark_vxIv(batch_size, alpha, repetitions)
+    benchmark_vxIv(batch_size, alpha, repetitions)
     #benchmark_rnea_fpass(n, parent_id_arr, h_xmat_func_arr_batched, h_S_arr_batched, h_Imat_arr_batched, h_crOp_output_batched, h_mxS_output_batched, h_vxIv_output_batched, batch_size, h_q_batched, h_qd_batched, repetitions)
     #benchmark_rnea_bpass(n, parent_id_arr, h_xmat_func_arr_batched, h_S_arr_batched, h_Imat_arr_batched, h_crOp_output_batched, h_mxS_output_batched, h_vxIv_output_batched, batch_size, h_q_batched, h_qd_batched, repetitions)
 
