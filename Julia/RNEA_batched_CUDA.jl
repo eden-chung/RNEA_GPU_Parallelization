@@ -168,6 +168,8 @@ using LinearAlgebra
 #cross operator
 using CUDA
 
+println("test")
+
 function cross_operator_batched_parallel(d_vec::CuArray{Float64}, d_output::CuArray{Float64})
     idx = threadIdx().x
     stride = blockDim().x
