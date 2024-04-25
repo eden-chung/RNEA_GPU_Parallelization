@@ -1,10 +1,3 @@
-
-using Pkg
-Pkg.add("CUDA")
-
-using CUDA
-CUDA.versioninfo()
-
 using CUDA
 
 batch_size = 1000
@@ -230,7 +223,7 @@ function mxS(S, vec, vec_output, mxS_output, alpha=1)
     vec_output_gpu = CUDA.cu(vec_output)
     mxS_output_gpu = CUDA.cu(mxS_output)
     
-    cross_operator_batched_gpu(vec_gpu, vec_output_gpu)
+    cross_operator_batched_parallel(vec_gpu, vec_output_gpu)
 
     batch_size = size(vec_output_gpu, 3)
 
@@ -453,10 +446,10 @@ function main()
     alpha = 0.1
     repetitions = 1000
     benchmark_cross_operator(batch_size, alpha, repetitions)
-    benchmark_mxS(batch_size, alpha, repetitions)
-    benchmark_vxIv(batch_size, alpha, repetitions)
-    benchmark_rnea_fpass(n, parent_id_arr, h_xmat_func_arr_batched, h_S_arr_batched, h_Imat_arr_batched, h_crOp_output_batched, h_mxS_output_batched, h_vxIv_output_batched, batch_size, h_q_batched, h_qd_batched, repetitions)
-    benchmark_rnea_bpass(n, parent_id_arr, h_xmat_func_arr_batched, h_S_arr_batched, h_Imat_arr_batched, h_crOp_output_batched, h_mxS_output_batched, h_vxIv_output_batched, batch_size, h_q_batched, h_qd_batched, repetitions)
+    #benchmark_mxS(batch_size, alpha, repetitions)
+    #benchmark_vxIv(batch_size, alpha, repetitions)
+    #benchmark_rnea_fpass(n, parent_id_arr, h_xmat_func_arr_batched, h_S_arr_batched, h_Imat_arr_batched, h_crOp_output_batched, h_mxS_output_batched, h_vxIv_output_batched, batch_size, h_q_batched, h_qd_batched, repetitions)
+    #benchmark_rnea_bpass(n, parent_id_arr, h_xmat_func_arr_batched, h_S_arr_batched, h_Imat_arr_batched, h_crOp_output_batched, h_mxS_output_batched, h_vxIv_output_batched, batch_size, h_q_batched, h_qd_batched, repetitions)
 
 end
 
