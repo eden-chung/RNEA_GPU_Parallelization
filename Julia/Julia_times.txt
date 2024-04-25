@@ -55,6 +55,49 @@ cuda_times_inversionFloat32[0.001162752, 0.00580368, 0.006961728, 0.011603456, 0
 
 
 The algorithm:
+
+with a batch size of 1000
 Cross operator:
-Julia: Benchmark time for cross operator for 100 repetitions: 0.0012629032135009766 seconds
-CUDA: Benchmark time for cross operator for 100 repetitions: 7.192744016647339 seconds
+Julia:
+Benchmark time for cross operator for 100 repetitions: 0.0012629032135009766 seconds
+Benchmark time for cross operator for 1000 repetitions: 0.011384010314941406 seconds
+Benchmark time for cross operator for 10000 repetitions: 0.11584210395812988 seconds
+
+
+
+CUDA:
+Benchmark time for cross operator for 100 repetitions: 7.192744016647339 seconds
+new: Benchmark time for cross operator for 100 repetitions: 0.00032591819763183594 seconds
+Benchmark time for cross operator for 1000 repetitions: 0.0554351806640625 seconds
+Benchmark time for cross operator for 10000 repetitions: 0.3607211112976074 seconds
+
+
+
+
+mxv:
+Julia:
+Benchmark time for mxS for 1000 repetitions: 0.6245889663696289 seconds
+Benchmark time for mxS for 10000 repetitions: 3.9751698970794678 seconds
+Benchmark time for mxS for 100 repetitions: 0.11808085441589355 seconds
+
+
+CUDA:
+Benchmark time for mxS for 100 repetitions: 0.35341906547546387 seconds
+Benchmark time for mxS for 1000 repetitions: 1.9446399211883545 seconds
+Benchmark time for mxS for 10000 repetitions: 19.594050884246826 seconds
+
+
+
+with a batch size of 100000
+Julia:
+Benchmark time for cross operator for 1000 repetitions: 2.8045148849487305 seconds
+Benchmark time for mxS for 1000 repetitions: 75.22126603126526 seconds
+
+batch size of 10000 bc it couldnt handle 100000
+Julia:
+Benchmark time for cross operator for 1000 repetitions: 0.4101729393005371 seconds
+Benchmark time for mxS for 1000 repetitions: 4.354753017425537 seconds
+
+CUDA:
+Benchmark time for cross operator for 1000 repetitions: 2.9041030406951904 seconds
+Benchmark time for mxS for 1000 repetitions: 18.969295978546143 seconds
