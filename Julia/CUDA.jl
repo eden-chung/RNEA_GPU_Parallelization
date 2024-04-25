@@ -52,18 +52,34 @@ function time_dot_product_cuda(size)
     if !CUDA.functional()
         error("CUDA is not available or your GPU is not supported.")
     end
+
+    print("size is", size)
+
+    A = rand(size)
+    B = rand(size)
     
-    A_gpu = CUDA.rand(size)
-    B_gpu = CUDA.rand(size)
+    #A_gpu = CUDA.rand(size)
+    #B_gpu = CUDA.rand(size)
 
-    CUDA.@sync dot(A_gpu, B_gpu)
+    A_gpu = CUDA.CuArray(A)
+    B_gpu = CUDA.CuArray(B)
 
-    start_time = CUDA.@elapsed begin
-        C_gpu = dot(A_gpu, B_gpu)
-        CUDA.synchronize()
+    
+
+    try
+        result = dot(A_gpu, B_gpu)
+        print("result is", result, "\n")
+    catch ex
+        println("Error during dot production  comptuation",  ex)
     end
 
-    return start_time
+
+    # start_time = CUDA.@elapsed begin
+    #     C_gpu = dot(A_gpu, B_gpu)
+    #     CUDA.synchronize()
+    # end
+
+    #return start_time
 end
 
 function time_matrix_inversion_julia(size)
@@ -75,7 +91,7 @@ function time_matrix_inversion_julia(size)
     return end_time - start_time
 end
 
-function time_matrix_inverison_cuda(size)
+function time_matrix_inversion_cuda(size)
     if !CUDA.functional()
         error("CUDA is not available or your GPU is not supported.")
     end
@@ -97,17 +113,17 @@ end
 
 sizes_matmul = [100, 300, 500, 700, 900, 1300, 2000, 4000, 6000, 8000]
 
-julia_times_matmul = [time_matmul_julia(size) for size in sizes_matmul]
+# julia_times_matmul = [time_matmul_julia(size) for size in sizes_matmul]
 
-for (i, size) in enumerate(sizes_matmul)
-    println("Matrix size: $size x $size, Time taken for matrix multiplication Julia: $(julia_times_matmul[i]) seconds")
-end
+# for (i, size) in enumerate(sizes_matmul)
+#     println("Matrix size: $size x $size, Time taken for matrix multiplication Julia: $(julia_times_matmul[i]) seconds")
+# end
 
-cuda_times_matmul = [time_matmul_cuda(size) for size in sizes_matmul]
+# cuda_times_matmul = [time_matmul_cuda(size) for size in sizes_matmul]
 
-for (i, size) in enumerate(sizes_matmul)
-    println("Matrix size: $size x $size, Time taken for matrix multiplication CUDA: $(cuda_times_matmul[i]) seconds")
-end
+# for (i, size) in enumerate(sizes_matmul)
+#     println("Matrix size: $size x $size, Time taken for matrix multiplication CUDA: $(cuda_times_matmul[i]) seconds")
+# end
 
 
 ##now do dot product
@@ -126,3 +142,20 @@ cuda_times_dot = [time_dot_product_cuda(size) for size in sizes_dot]
 for (i, size) in enumerate(sizes_dot)
     println("Vector size: $size, Time taken for dot product CUDA: $(cuda_times_dot[i]) seconds")
 end
+
+
+sizes_inversion = [200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000, 2500, 4000, 7000, 10000]
+
+# julia_times_inversion = [time_matrix_inversion_julia(size) for size in sizes_inversion]
+
+# for (i, size) in enumerate(sizes_dot)
+#     println("Vector size: $size, Time taken for matrix inversion Julia: $(julia_times_inversion[i]) seconds")
+# end
+
+
+# cuda_times_inversion = [time_matrix_inversion_cuda(size) for size in sizes_inversion]
+
+# for (i, size) in enumerate(sizes_dot)
+#     println("Vector size: $size, Time taken for matrix inversion Julia: $(cuda_times_inversion[i]) seconds")
+# end
+
