@@ -30,13 +30,13 @@ times_torch_inversion = [0.3084089756011963, 0.012573480606079102, 0.02484059333
 
 # Plotting the results
 plt.figure(figsize=(10,6))
-plt.plot(sizes, times_julia_matmul, marker='o', label='Julia')
-plt.plot(sizes, times_cuda_matmul, marker='o', label='CUDA.jl')
-plt.plot(sizes, times_python_matmul, marker='o', label='Python')
-plt.plot(sizes, times_python_cuda_matmul, marker='o', label='PyTorch')
+plt.plot(sizes, times_julia_matmul, marker='o', label='Julia', color='red')
+plt.plot(sizes, times_cuda_matmul, marker='o', label='CUDA.jl', color='green')
+# plt.plot(sizes, times_python_matmul, marker='o', label='Python', color='tab:blue')
+# plt.plot(sizes, times_python_cuda_matmul, marker='o', label='PyTorch', color='orange')
 
 # Title and labels
-plt.title('Matrix Multiplication Performance: Python, PyTorch, Julia, CUDA.jl')
+plt.title('Matrix Multiplication Performance: Julia, CUDA.jl')
 plt.xlabel('Matrix Size')
 plt.ylabel('Time (seconds)')
 
@@ -46,3 +46,30 @@ plt.legend()
 # Grid and show plot
 plt.grid(True)
 plt.show()
+
+
+# sizes_inversion = [200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000, 2500, 4000, 7000, 10000]
+# julia_times_inversion = [0.0020530223846435547, 0.003587961196899414, 0.008840799331665039, 0.01601696014404297, 0.028993844985961914, 0.04532885551452637, 1.2533419132232666, 0.08825993537902832, 0.1355760097503662, 0.18045997619628906, 0.3117859363555908, 1.2057139873504639, 6.009594202041626, 17.65435791015625]
+# cuda_times_inversion = [0.001162752, 0.00580368, 0.006961728, 0.011603456, 0.018463807, 0.022008032, 0.030136127, 0.035900127, 0.046443038, 0.056463744, 0.09003046, 0.25004572, 1.094886, 2.764174]
+
+# # Plotting the results
+# plt.figure(figsize=(10,6))
+# plt.plot(sizes_inversion, julia_times_inversion, marker='o', label='Julia', color='red')
+# plt.plot(sizes_inversion, cuda_times_inversion, marker='o', label='CUDA.jl', color='green')
+# # plt.plot(sizes_inversion, times_python_inversion, marker='o', label='Python', color='tab:blue')
+# # plt.plot(sizes_inversion, times_torch_inversion, marker='o', label='PyTorch', color='orange')
+
+
+# # Title and labels
+# #plt.title('Matrix Inversion Performance: Python, PyTorch, Julia, CUDA.jl')
+# plt.title('Matrix Inversion Performance: Julia, CUDA.jl')
+
+# plt.xlabel('Matrix Size')
+# plt.ylabel('Time (seconds)')
+
+# # Legend
+# plt.legend()
+
+# # Grid and show plot
+# plt.grid(True)
+# plt.show()
