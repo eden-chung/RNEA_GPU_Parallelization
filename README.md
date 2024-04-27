@@ -7,7 +7,7 @@ The base code for the RNEA algorithm is from the A2R Lab's [GRiD repository](htt
 
 The batched RNEA algorithm was also based on work done by the [A2R Lab](https://a2r-lab.org/)
 
-## Installation Instructions:
+## Installation Instructions
 ### Install Python Dependencies
 The code in this repository uses several external packages: ```beautifulsoup4, lxml, numpy, sympy, pytorch``` which can be automatically installed by running:
 ```shell
@@ -47,3 +47,13 @@ export PATH="/usr/local/cuda/bin:$PATH"
 export LD_LIBRARY_PATH="/usr/local/cuda/lib64:$LD_LIBRARY_PATH"
 export PATH="opt/nvidia/nsight-compute/:$PATH"
 ```
+
+## Usage
+The Python code, both the unparallelized versions, and the parallelized PyTorch versions, is in the folder `Python`. These are .ipynb notebooks.
+
+The Julia code, both unparallelized, and the parallelized CUDA.jl code, is in the folder `Julia`. To run any of the files in this folder run:
+```
+julia file_name.jl
+```
+
+The graphs from the results of the benchmarking can be found in the folder `Graphs`
