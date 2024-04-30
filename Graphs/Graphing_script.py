@@ -77,52 +77,26 @@ plt.show()
 # plt.show()
 
 
-# import matplotlib.pyplot as plt
-
-# # Data for plotting
-# labels = ['mxS', 'vxIv', 'fpass', 'bpass', 'RNEA']
-
-# numpy_times = [0.0073125471, 0.0132675189, 3.710159997, 0.6121313864, 3.54439054]
-# pytorch_times = [0.0633323941, 0.0929346393, 0.2108642872, 0.1830261935, 0.3851471845]
-
-# # Plotting the results
-# plt.figure(figsize=(10,6))
-# x = np.arange(len(labels))
-# width = 0.35
-# plt.bar(x - width/2, numpy_times, width, label='NumPy on CPU')
-# plt.bar(x + width/2, pytorch_times, width, label='PyTorch on GPU')
-
-# # Title and labels
-# plt.title('Performance Comparison: NumPy vs PyTorch')
-# plt.xlabel('Operation')
-# plt.ylabel('Time (seconds)')
-
-# # X-axis ticks and labels
-# plt.xticks(x, labels, rotation=45, ha='right', fontsize=8)
-
-# # Legend
-# plt.legend()
-
-# # Grid and show plot
-# plt.grid(True)
-# plt.show()
-
+import matplotlib.pyplot as plt
 
 # Data for plotting
-labels = ['cross_product', 'mxS']
+labels = ['mxS', 'vxIv', 'fpass', 'bpass', 'RNEA']
 
-julia_times = [0.4101729393005371, 4.354753017425537]
-cuda_times = [2.9041030406951904, 18.969295978546143]
+#numpy_times = [0.0073125471, 0.0132675189, 3.710159997, 0.6121313864, 3.54439054]
+#pytorch_times = [0.0633323941, 0.0929346393, 0.2108642872, 0.1830261935, 0.3851471845]
+
+numpy_times = [6.92E-05, 9.36E-05, 0.03662083224, 0.006419221088, 0.04147206579]
+pytorch_times = [0.000556017598, 0.000645810509, 0.002002759124, 0.00183310777, 0.003693169524]
 
 # Plotting the results
 plt.figure(figsize=(10,6))
 x = np.arange(len(labels))
 width = 0.35
-plt.bar(x - width/2, julia_times, width, label='Julia on CPU', color='red')
-plt.bar(x + width/2, cuda_times, width, label='CUDA.jl on GPU', color='green')
+plt.bar(x - width/2, numpy_times, width, label='NumPy on CPU')
+plt.bar(x + width/2, pytorch_times, width, label='PyTorch on GPU')
 
 # Title and labels
-plt.title('Performance Comparison: Julia vs CUDA.jl')
+plt.title('Performance Comparison: NumPy vs PyTorch')
 plt.xlabel('Operation')
 plt.ylabel('Time (seconds)')
 
@@ -135,3 +109,33 @@ plt.legend()
 # Grid and show plot
 plt.grid(True)
 plt.show()
+
+
+# # Data for plotting
+# labels = ['cross_product', 'mxS']
+
+# julia_times = [0.4101729393005371, 4.354753017425537]
+# cuda_times = [2.9041030406951904, 18.969295978546143]
+
+
+# # Plotting the results
+# plt.figure(figsize=(10,6))
+# x = np.arange(len(labels))
+# width = 0.35
+# plt.bar(x - width/2, julia_times, width, label='Julia on CPU', color='red')
+# plt.bar(x + width/2, cuda_times, width, label='CUDA.jl on GPU', color='green')
+
+# # Title and labels
+# plt.title('Performance Comparison: Julia vs CUDA.jl')
+# plt.xlabel('Operation')
+# plt.ylabel('Time (seconds)')
+
+# # X-axis ticks and labels
+# plt.xticks(x, labels, rotation=45, ha='right', fontsize=8)
+
+# # Legend
+# plt.legend()
+
+# # Grid and show plot
+# plt.grid(True)
+# plt.show()
