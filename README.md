@@ -1,6 +1,6 @@
 # GPU Parallelizing of the RNEA Algorithm
 
-This is the code used to write the paper "An investigation into parallelizing the RNEA Algorithm using PyTorch and CUDA.jl"
+This is the code used to write the paper ["An investigation into parallelizing the RNEA Algorithm using PyTorch and CUDA.jl"](RNEA_GPU_Paralellization_paper.pdf)
 
 ## References
 The base code for the RNEA algorithm is from the A2R Lab's [GRiD repository](https://github.com/A2R-Lab/GRiD).
