@@ -57,3 +57,9 @@ julia file_name.jl
 ```
 
 The graphs from the results of the benchmarking can be found in the folder `Graphs`
+
+## Contributors
+- [Eden Chung](https://github.com/eden-chung)
+- [Annie Wang](https://github.com/anniew03)
+- [Siying Ding](https://github.com/siyingd1)
+- Neasha Mittal
